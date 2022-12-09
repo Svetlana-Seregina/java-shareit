@@ -70,8 +70,10 @@ public class ItemRepositoryImpl implements ItemRepository {
         String t = text.toLowerCase();
         return items.values().stream()
                 .filter(Item::getAvailable)
-                .filter(item -> { log.info("В список добалена вещь пользователя: " + item);
-                    return item.getName().toLowerCase().contains(t) || item.getDescription().toLowerCase().contains(t);})
+                .filter(item -> {
+                    log.info("В список добалена вещь пользователя: " + item);
+                    return item.getName().toLowerCase().contains(t) || item.getDescription().toLowerCase().contains(t);
+                })
                 .collect(Collectors.toList());
     }
 
