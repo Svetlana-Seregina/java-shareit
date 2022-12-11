@@ -45,7 +45,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto getById(Long userId, Long id) {
-        log.info("Получение вещи по id = " + id);
+        log.info("Получение вещи по id = {}", id);
         Item item = itemRepository.getById(userId, id)
                 .orElseThrow(() -> new EntityNotFoundException("Вещи с id = " + userId + " нет в базе."));
         return ItemMapper.toItemDto(item);
@@ -55,7 +55,7 @@ public class ItemServiceImpl implements ItemService {
     public List<ItemDto> findAll(Long userId) {
         UserDto userDto = userService.findById(userId);
         User user = UserMapper.toUpdateUser(userId, userDto);
-        log.info("Получение всех вещей пользователя с id = " + userId);
+        log.info("Получение всех вещей пользователя с id = {}", userId);
         Collection<Item> allItems = itemRepository.findAll(user);
         log.info("Всего найдено вещей пользователя = " + allItems.size());
         log.info("Найдена вещь пользователя: " + allItems.stream().findAny());

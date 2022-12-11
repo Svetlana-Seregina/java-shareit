@@ -26,7 +26,7 @@ public class ItemRepositoryImpl implements ItemRepository {
         item.setId(getNextId());
         item.setOwner(user);
         items.put(item.getId(), item);
-        log.info("Создана вещь:  " + item);
+        log.info("Создана вещь:  {}", item);
         return item;
     }
 
@@ -47,10 +47,10 @@ public class ItemRepositoryImpl implements ItemRepository {
             item.setDescription(description);
             boolean available = itemAvailable != null ? itemAvailable : item1.getAvailable();
             item.setAvailable(available);
-            log.info("Вещь доступна? " + available);
+            log.info("Вещь доступна? {}", available);
             item.setOwner(user);
             items.put(itemId, item);
-            log.info("Обновлена вещь:  " + item);
+            log.info("Обновлена вещь: {} ", item);
             return item;
         }
     }
@@ -58,7 +58,7 @@ public class ItemRepositoryImpl implements ItemRepository {
     @Override
     public Optional<Item> getById(Long userId, Long id) {
         Optional<Item> item = Optional.of(items.get(id));
-        log.info("Найдена вещь по id " + id);
+        log.info("Найдена вещь по id {}", id);
         return item;
     }
 
@@ -75,7 +75,7 @@ public class ItemRepositoryImpl implements ItemRepository {
         return items.values().stream()
                 .filter(Item::getAvailable)
                 .filter(item -> {
-                    log.info("В список добалена вещь пользователя: " + item);
+                    log.info("В список добалена вещь пользователя: {}", item);
                     return item.getName().toLowerCase().contains(lowerCaseText) || item.getDescription().toLowerCase().contains(lowerCaseText);
                 })
                 .collect(Collectors.toList());

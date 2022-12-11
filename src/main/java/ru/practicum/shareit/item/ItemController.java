@@ -40,14 +40,14 @@ public class ItemController {
 
     @GetMapping
     public List<ItemDto> findAll(@RequestHeader("X-Sharer-User-Id") Long userId) {
-        log.info("Обрабатываем запрос на получение всех вещей от пользователя с id: " + userId);
+        log.info("Обрабатываем запрос на получение всех вещей от пользователя с id: {}", userId);
         return itemService.findAll(userId);
     }
 
     // /items/search?text={text}
     @GetMapping("/search")
     public List<ItemDto> searchAllByRequestText(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                @RequestParam(value = "text", required = false) String text) {
+                                                @RequestParam(value = "text") String text) {
         if (text.isBlank()) {
             return Collections.emptyList();
         }

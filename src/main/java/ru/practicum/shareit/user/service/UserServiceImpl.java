@@ -51,7 +51,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto findById(Long id) {
-        log.info("Получение пользователя по id = " + id);
+        log.info("Получение пользователя по id = {}", id);
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Пользователя с id = " + id + " нет в базе."));
         return UserMapper.toUserDto(user);

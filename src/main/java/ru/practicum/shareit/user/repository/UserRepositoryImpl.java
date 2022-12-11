@@ -24,8 +24,8 @@ public class UserRepositoryImpl implements UserRepository {
         validationUserEmail(user);
         user.setId(getNextId());
         users.put(user.getId(), user);
-        log.info("Создан пользователь  " + user);
-        log.info("Количество пользователей в базе = " + users.size());
+        log.info("Создан пользователь  {}", user);
+        log.info("Количество пользователей в базе = {}", users.size());
         return user;
     }
 
@@ -42,9 +42,9 @@ public class UserRepositoryImpl implements UserRepository {
             user1.setEmail(user.getEmail());
         }
 
-        log.info("Пользователь обновлен: " + user);
+        log.info("Пользователь обновлен: {}", user);
         users.put(userId, user1);
-        log.info("Количество пользователей = " + users.size());
+        log.info("Количество пользователей в базе = {}", users.size());
 
         return user1;
     }
@@ -57,7 +57,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public Collection<User> findAll() {
-        log.info("Количество пользователей в списке = " + users.size());
+        log.info("Количество пользователей в списке = {}", users.size());
         return List.copyOf(users.values());
     }
 
