@@ -5,17 +5,18 @@ import ru.practicum.shareit.user.model.User;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 public interface ItemRepository {
 
-    Item saveNewItem(User user, Item item);
+    Item save(User user, Item item);
 
-    Item updateItem(User user, Item item);
+    Item update(User user, Item item);
 
-    Item getItemById(Long userId, Long id);
+    Optional<Item> getById(Long userId, Long id);
 
     Collection<Item> findAll(User user);
 
-    List<Item> searchItem(Long userId, String text);
+    List<Item> searchAllByRequestText(Long userId, String text);
 
 }

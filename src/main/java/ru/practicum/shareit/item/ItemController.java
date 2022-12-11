@@ -7,11 +7,9 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.service.ItemService;
 
 import javax.validation.Valid;
+import java.util.Collections;
 import java.util.List;
 
-/**
- * TODO Sprint add-controllers.
- */
 @RestController
 @RequestMapping("/items")
 @RequiredArgsConstructor
@@ -21,23 +19,23 @@ public class ItemController {
     private final ItemService itemService;
 
     @PostMapping
-    public ItemDto saveNewItem(@RequestHeader("X-Sharer-User-Id") Long userId, @Valid @RequestBody ItemDto itemDto) {
+    public ItemDto save(@RequestHeader("X-Sharer-User-Id") Long userId, @Valid @RequestBody ItemDto itemDto) {
         log.info("Обрабатываем запрос на создание вещи:  " + itemDto + " от пользователя: " + userId);
-        return itemService.saveNewItem(userId, itemDto);
+        return itemService.save(userId, itemDto);
     }
 
     @PatchMapping("/{id}")
-    public ItemDto updateItem(@RequestHeader("X-Sharer-User-Id") Long userId,
-                              @PathVariable Long id,
-                              @RequestBody ItemDto itemDto) {
+    public ItemDto update(@RequestHeader("X-Sharer-User-Id") Long userId,
+                          @PathVariable Long id,
+                          @RequestBody ItemDto itemDto) {
         log.info("Обрабатываем запрос на обновление вещи: " + itemDto + " от пользователя: " + userId);
-        return itemService.updateItem(userId, id, itemDto);
+        return itemService.update(userId, id, itemDto);
     }
 
     @GetMapping("/{id}")
-    public ItemDto getItemById(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long id) {
+    public ItemDto getById(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long id) {
         log.info("Обрабатываем запрос на получение вещи по id = " + id + " от пользователя с id: " + userId);
-        return itemService.getItemById(userId, id);
+        return itemService.getById(userId, id);
     }
 
     @GetMapping
@@ -48,9 +46,12 @@ public class ItemController {
 
     // /items/search?text={text}
     @GetMapping("/search")
-    public List<ItemDto> searchItem(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                    @RequestParam(value = "text", required = false) String text) {
+    public List<ItemDto> searchAllByRequestText(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                                @RequestParam(value = "text", required = false) String text) {
+        if (text.isBlank()) {
+            return Collections.emptyList();
+        }
         log.info("Обрабатываем запрос на поиск вещи по запросу пользователя. Текст запроса: " + text);
-        return itemService.searchItem(userId, text);
+        return itemService.searchAllByRequestText(userId, text);
     }
 }

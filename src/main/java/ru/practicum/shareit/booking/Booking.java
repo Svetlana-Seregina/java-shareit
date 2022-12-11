@@ -24,7 +24,7 @@ public class Booking {
     private final User booker;
     private final String status;
     // WAITING - новое бронирование, ожидает одобрения
-    // APPROVED - Дополнительные советы ментора2бронирование подтверждено владельцем
+    // APPROVED - бронирование подтверждено владельцем
     // REJECTED - бронирование отклонено владельцем
     // CANCELED - бронирование отменено создателем
 }
