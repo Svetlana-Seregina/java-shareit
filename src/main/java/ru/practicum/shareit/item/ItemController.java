@@ -20,7 +20,7 @@ public class ItemController {
 
     @PostMapping
     public ItemDto save(@RequestHeader("X-Sharer-User-Id") Long userId, @Valid @RequestBody ItemDto itemDto) {
-        log.info("Обрабатываем запрос на создание вещи:  " + itemDto + " от пользователя: " + userId);
+        log.warn("Обрабатываем запрос на создание вещи: {} от пользователя: {}", itemDto, userId);
         return itemService.save(userId, itemDto);
     }
 
@@ -28,13 +28,13 @@ public class ItemController {
     public ItemDto update(@RequestHeader("X-Sharer-User-Id") Long userId,
                           @PathVariable Long id,
                           @RequestBody ItemDto itemDto) {
-        log.info("Обрабатываем запрос на обновление вещи: " + itemDto + " от пользователя: " + userId);
+        log.warn("Обрабатываем запрос на обновление вещи: {} от пользователя: {}", itemDto, userId);
         return itemService.update(userId, id, itemDto);
     }
 
     @GetMapping("/{id}")
     public ItemDto getById(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long id) {
-        log.info("Обрабатываем запрос на получение вещи по id = " + id + " от пользователя с id: " + userId);
+        log.warn("Обрабатываем запрос на получение вещи по id = {} от пользователя: {}", id, userId);
         return itemService.getById(userId, id);
     }
 
@@ -51,7 +51,7 @@ public class ItemController {
         if (text.isBlank()) {
             return Collections.emptyList();
         }
-        log.info("Обрабатываем запрос на поиск вещи по запросу пользователя. Текст запроса: " + text);
+        log.info("Обрабатываем запрос на поиск вещи по запросу пользователя. Текст запроса: {}", text);
         return itemService.searchAllByRequestText(userId, text);
     }
 }

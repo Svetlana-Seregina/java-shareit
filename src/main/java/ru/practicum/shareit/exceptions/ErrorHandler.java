@@ -19,8 +19,7 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<String> handlerConstraintViolationException(ConstraintViolationException e,
                                                                       HttpServletRequest request) {
-        log.warn("Ошибка валидации запроса: " + e.getMessage()
-                + "\nПуть запроса: " + request.getServletPath());
+        log.warn("Ошибка валидации запроса: {} \nПуть запроса: {}", e.getMessage(), request.getServletPath());
         return new ResponseEntity<>(e.getMessage() + "\nПуть запроса: "
                 + request.getServletPath(), HttpStatus.BAD_REQUEST);
     }
@@ -29,8 +28,8 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<String> handleMethodArgumentNotValidException(MethodArgumentNotValidException e,
                                                                         HttpServletRequest request) {
-        log.warn("Ошибка валидации полей объекта: " + e.getFieldError().getDefaultMessage()
-                + "\nПуть запроса: " + request.getServletPath());
+        log.warn("Ошибка валидации полей объекта: {} \nПуть запроса: {}",
+                e.getFieldError().getDefaultMessage(), request.getServletPath());
         return new ResponseEntity<>(e.getFieldError().getDefaultMessage()
                 + "\nПуть запроса: " + request.getServletPath(), HttpStatus.BAD_REQUEST);
     }
@@ -38,16 +37,14 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleEntityNotFoundException(EntityNotFoundException e, HttpServletRequest request) {
-        log.warn("Запрашиваемый объект не найден: " + e.getMessage()
-                + "\nПуть запроса: " + request.getServletPath());
+        log.warn("Запрашиваемый объект не найден: {} \nПуть запроса: {}", e.getMessage(), request.getServletPath());
         return new ErrorResponse(e.getMessage() + ". Путь запроса: " + request.getServletPath());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleThrowable(final Throwable e, HttpServletRequest request) {
-        log.warn("Произошла непредвиденная ошибка: " + e.getMessage()
-                + "\nПуть запроса: " + request.getServletPath());
+        log.warn("Произошла непредвиденная ошибка: {} \nПуть запроса: {}", e.getMessage(), request.getServletPath());
         return new ErrorResponse("Произошла непредвиденная ошибка по пути запроса: " + request.getServletPath());
     }
 

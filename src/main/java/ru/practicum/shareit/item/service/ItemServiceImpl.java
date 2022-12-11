@@ -47,7 +47,7 @@ public class ItemServiceImpl implements ItemService {
     public ItemDto getById(Long userId, Long id) {
         log.info("Получение вещи по id = {}", id);
         Item item = itemRepository.getById(userId, id)
-                .orElseThrow(() -> new EntityNotFoundException("Вещи с id = " + userId + " нет в базе."));
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Вещи с id = %d нет в базе.", userId)));
         return ItemMapper.toItemDto(item);
     }
 
@@ -57,8 +57,8 @@ public class ItemServiceImpl implements ItemService {
         User user = UserMapper.toUpdateUser(userId, userDto);
         log.info("Получение всех вещей пользователя с id = {}", userId);
         Collection<Item> allItems = itemRepository.findAll(user);
-        log.info("Всего найдено вещей пользователя = " + allItems.size());
-        log.info("Найдена вещь пользователя: " + allItems.stream().findAny());
+        log.info("Всего найдено вещей пользователя = {}", allItems.size());
+        log.info("Найдена вещь пользователя: {}", allItems.stream().findAny());
         return allItems.stream()
                 .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());
@@ -66,9 +66,9 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDto> searchAllByRequestText(Long userId, String text) {
-        log.info("Поиск вещи по запросу пользователя: " + text);
+        log.info("Поиск вещи по запросу пользователя: {}", text);
         List<Item> itemList = itemRepository.searchAllByRequestText(userId, text);
-        log.info("Количество вещей, найденных по запросу пользователя = " + itemList.size());
+        log.info("Количество вещей, найденных по запросу пользователя = {}", itemList.size());
         return itemList.stream()
                 .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());

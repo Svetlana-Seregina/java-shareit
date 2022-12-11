@@ -51,7 +51,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public void deleteById(Long userId) {
-        log.info("Пользователь с id = " + userId + " удален.");
+        log.info("Пользователь с id = {} удален.", userId);
         users.remove(userId);
     }
 
@@ -75,7 +75,7 @@ public class UserRepositoryImpl implements UserRepository {
                 .filter(user1 -> user1.getEmail().equals(email))
                 .findAny()
                 .ifPresent((e) -> {
-                    throw new ValidationException("Пользователь с таким email уже существует: " + email);
+                    throw new ValidationException(String.format("Пользователь с таким email: %s уже существует.", email));
                 });
 
         log.info("EMAIL пользователя прошел проверку: в базе не дублируется.");

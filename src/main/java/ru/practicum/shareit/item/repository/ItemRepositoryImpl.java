@@ -43,7 +43,8 @@ public class ItemRepositoryImpl implements ItemRepository {
         } else {
             String name = itemName != null && !itemName.isBlank() ? itemName : item1.getName();
             item.setName(name);
-            String description = itemDescription != null && !itemDescription.isBlank() ? itemDescription : item1.getDescription();
+            String description = itemDescription != null && !itemDescription.isBlank() ?
+                    itemDescription : item1.getDescription();
             item.setDescription(description);
             boolean available = itemAvailable != null ? itemAvailable : item1.getAvailable();
             item.setAvailable(available);
@@ -76,7 +77,8 @@ public class ItemRepositoryImpl implements ItemRepository {
                 .filter(Item::getAvailable)
                 .filter(item -> {
                     log.info("В список добалена вещь пользователя: {}", item);
-                    return item.getName().toLowerCase().contains(lowerCaseText) || item.getDescription().toLowerCase().contains(lowerCaseText);
+                    return item.getName().toLowerCase().contains(lowerCaseText) ||
+                            item.getDescription().toLowerCase().contains(lowerCaseText);
                 })
                 .collect(Collectors.toList());
     }
