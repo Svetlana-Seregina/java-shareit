@@ -34,6 +34,15 @@ public class ErrorHandler {
                 + "\nПуть запроса: " + request.getServletPath(), HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler({ValidationException.class})
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<String> handleValidationException(ValidationException e,
+                                                                        HttpServletRequest request) {
+        log.warn("Ошибка валидации запроса: {} \nПуть запроса: {}",
+                e.getMessage(), request.getServletPath());
+        return new ResponseEntity<>(e.getMessage()
+                + "\nПуть запроса: " + request.getServletPath(), HttpStatus.BAD_REQUEST);
+    }
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleEntityNotFoundException(EntityNotFoundException e, HttpServletRequest request) {

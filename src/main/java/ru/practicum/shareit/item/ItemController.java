@@ -33,9 +33,9 @@ public class ItemController {
     }
 
     @GetMapping("/{id}")
-    public ItemDto getById(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long id) {
+    public ItemDto findById(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long id) {
         log.warn("Обрабатываем запрос на получение вещи по id = {} от пользователя: {}", id, userId);
-        return itemService.getById(userId, id);
+        return itemService.findById(userId, id);
     }
 
     @GetMapping
@@ -52,6 +52,6 @@ public class ItemController {
             return Collections.emptyList();
         }
         log.info("Обрабатываем запрос на поиск вещи по запросу пользователя. Текст запроса: {}", text);
-        return itemService.searchAllByRequestText(userId, text);
+        return itemService.search(userId, text);
     }
 }

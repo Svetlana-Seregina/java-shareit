@@ -10,7 +10,7 @@ import ru.practicum.shareit.user.service.UserService;
 import java.util.List;
 
 @RestController
-@RequestMapping(path = "/users")
+@RequestMapping("/users")
 @RequiredArgsConstructor
 @Slf4j
 public class UserController {
@@ -20,7 +20,7 @@ public class UserController {
     @PostMapping
     public UserDto saveNew(@Validated(Create.class) @RequestBody UserDto userDto) {
         log.info("Обрабатываем запрос на создание пользователя: {}", userDto);
-        return userService.saveNew(userDto);
+        return userService.save(userDto);
     }
 
     @PatchMapping("/{id}")

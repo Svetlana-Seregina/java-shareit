@@ -15,18 +15,26 @@ public class UserMapper {
     }
 
     public static User toCreateUser(UserDto userDto) {
-        return User.builder()
-                .name(userDto.getName())
-                .email(userDto.getEmail())
-                .build();
+        User user = new User();
+        user.setName(userDto.getName());
+        user.setEmail(userDto.getEmail());
+        return user;
+    }
+
+    public static User toUpdateUser(UserDto user, UserDto userDto) {
+        User user1 = new User();
+        user1.setId(user.getId());
+        user1.setName(userDto.getName() != null ? userDto.getName() : user.getName());
+        user1.setEmail(userDto.getEmail() != null ? userDto.getEmail() : user.getEmail());
+        return user1;
     }
 
     public static User toUpdateUser(Long userId, UserDto userDto) {
-        return User.builder()
-                .id(userId)
-                .name(userDto.getName() != null ? userDto.getName() : null)
-                .email(userDto.getEmail() != null ? userDto.getEmail() : null)
-                .build();
+        User user = new User();
+        user.setId(userId);
+        user.setName(userDto.getName() != null ? userDto.getName() : null);
+        user.setEmail(userDto.getEmail() != null ? userDto.getEmail() : null);
+        return user;
     }
 
 }

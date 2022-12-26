@@ -9,9 +9,9 @@ import ru.practicum.shareit.user.model.User;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Repository
+//@Repository
 @Slf4j
-public class ItemRepositoryImpl implements ItemRepository {
+public class ItemRepositoryImpl /*implements ItemRepository*/ {
 
     private final Map<Long, Item> items = new HashMap<>();
 
@@ -21,16 +21,16 @@ public class ItemRepositoryImpl implements ItemRepository {
         return nextId++;
     }
 
-    @Override
+   // @Override
     public Item save(User user, Item item) {
         item.setId(getNextId());
-        item.setOwner(user);
+        item.setOwnerId(user.getId());
         items.put(item.getId(), item);
         log.info("Создана вещь:  {}", item);
         return item;
     }
 
-    @Override
+    //@Override
     public Item update(User user, Item item) {
         Long itemId = item.getId();
         String itemName = item.getName();
@@ -38,7 +38,7 @@ public class ItemRepositoryImpl implements ItemRepository {
         Boolean itemAvailable = item.getAvailable();
         Item item1 = items.get(itemId);
 
-        if (!items.get(itemId).getOwner().equals(user)) {
+        if (!items.get(itemId).getOwnerId().equals(user.getId())) {
             throw new EntityNotFoundException("У вещи другой владелец.");
         } else {
             String name = itemName != null && !itemName.isBlank() ? itemName : item1.getName();
@@ -49,28 +49,28 @@ public class ItemRepositoryImpl implements ItemRepository {
             boolean available = itemAvailable != null ? itemAvailable : item1.getAvailable();
             item.setAvailable(available);
             log.info("Вещь доступна? {}", available);
-            item.setOwner(user);
+            item.setOwnerId(user.getId());
             items.put(itemId, item);
             log.info("Обновлена вещь: {} ", item);
             return item;
         }
     }
 
-    @Override
+    //@Override
     public Optional<Item> getById(Long userId, Long id) {
         Optional<Item> item = Optional.of(items.get(id));
         log.info("Найдена вещь по id {}", id);
         return item;
     }
 
-    @Override
+    //@Override
     public Collection<Item> findAll(User user) {
         return List.copyOf(items.values().stream()
-                .filter(item -> item.getOwner().equals(user))
+                .filter(item -> item.getOwnerId().equals(user.getId()))
                 .collect(Collectors.toList()));
     }
 
-    @Override
+    //@Override
     public List<Item> searchAllByRequestText(Long userId, String text) {
         String lowerCaseText = text.toLowerCase();
         return items.values().stream()

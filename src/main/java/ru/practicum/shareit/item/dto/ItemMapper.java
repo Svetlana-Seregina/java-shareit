@@ -12,25 +12,29 @@ public class ItemMapper {
                 item.getName(),
                 item.getDescription(),
                 item.getAvailable(),
+                item.getOwnerId(),
                 item.getRequestId()
         );
     }
 
-    public static Item toItem(ItemDto itemDto) {
-        return Item.builder()
-                .name(itemDto.getName())
-                .description(itemDto.getDescription())
-                .available(itemDto.getAvailable())
-                .requestId(itemDto.getRequestId())
-                .build();
+    public static Item toItem(Long userId, ItemDto itemDto) {
+        Item item = new Item();
+        item.setName(itemDto.getName());
+        item.setDescription(itemDto.getDescription());
+        item.setAvailable(itemDto.getAvailable());
+        item.setOwnerId(userId);
+        item.setRequestId(itemDto.getRequestId());
+        return item;
     }
 
-    public static Item toUpdateItem(Long id, ItemDto itemDto) {
-        return Item.builder()
-                .id(id)
-                .name(itemDto.getName() != null ? itemDto.getName() : null)
-                .description(itemDto.getDescription() != null ? itemDto.getDescription() : null)
-                .available(itemDto.getAvailable())
-                .build();
+    public static Item toUpdateItem(ItemDto itemDtoWithId, ItemDto itemDto) {
+        Item item = new Item();
+        item.setId(itemDtoWithId.getId());
+        item.setName(itemDto.getName() != null ? itemDto.getName() : itemDtoWithId.getName());
+        item.setDescription(itemDto.getDescription() != null ? itemDto.getDescription() : itemDtoWithId.getDescription());
+        item.setAvailable(itemDto.getAvailable() != null ? itemDto.getAvailable() : itemDtoWithId.getAvailable());
+        item.setOwnerId(itemDtoWithId.getOwnerId());
+        item.setRequestId(itemDtoWithId.getRequestId());
+        return item;
     }
 }
