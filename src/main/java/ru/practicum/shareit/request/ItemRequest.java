@@ -8,7 +8,9 @@ import java.time.LocalDate;
 
 @Entity
 @Table(name = "requests", schema = "public")
-@Getter @Setter @ToString
+@Getter
+@Setter
+@ToString
 public class ItemRequest {
 
     @Id

@@ -28,8 +28,8 @@ public class BookingController {
     public BookingDto update(@RequestHeader("X-Sharer-User-Id") Long userId,
                              @PathVariable Long id,
                              @RequestParam(value = "approved", required = false) String approved) {
-        log.warn("Обрабатываем запрос на обновление статуса аренды = {} вещи от владельца с id: {}, id аренды: {}"
-                , approved, userId, id);
+        log.warn("Обрабатываем запрос на обновление статуса аренды = {} вещи от владельца с id: {}, id аренды: {}",
+                approved, userId, id);
         return bookingService.update(userId, id, approved);
     }
 
