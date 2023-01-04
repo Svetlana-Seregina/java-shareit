@@ -6,7 +6,9 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "items", schema = "public")
-@Getter @Setter @ToString
+@Getter
+@Setter
+@ToString
 public class Item {
 
     @Id
@@ -21,5 +23,6 @@ public class Item {
     private Long ownerId;
     @Column(name = "request_id")
     private Long requestId;
+
 
 }

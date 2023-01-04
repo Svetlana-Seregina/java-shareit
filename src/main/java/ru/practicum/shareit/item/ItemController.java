@@ -3,6 +3,7 @@ package ru.practicum.shareit.item;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.service.ItemService;
 
@@ -54,4 +55,16 @@ public class ItemController {
         log.info("Обрабатываем запрос на поиск вещи по запросу пользователя. Текст запроса: {}", text);
         return itemService.search(userId, text);
     }
+
+    // POST /items/{itemId}/comment
+    @PostMapping("/{id}/comment")
+    public CommentDto save(@RequestHeader("X-Sharer-User-Id") Long userId,
+                           @PathVariable Long id,
+                           @Valid @RequestBody CommentDto commentDto) {
+        log.warn("Обрабатываем запрос на создание комметария к вещи с id = {}, комментарий = {}, от пользователя: {}",
+                id, commentDto, userId);
+        return itemService.save(userId, id, commentDto);
+    }
+
+
 }

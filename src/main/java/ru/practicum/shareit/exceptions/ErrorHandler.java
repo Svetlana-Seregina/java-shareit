@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintViolationException;
+import java.util.Map;
 
 @RestControllerAdvice
 @Slf4j
@@ -36,13 +37,13 @@ public class ErrorHandler {
 
     @ExceptionHandler({ValidationException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<String> handleValidationException(ValidationException e,
-                                                                        HttpServletRequest request) {
+    public Map<String, String> handleValidationException(ValidationException e,
+                                                         HttpServletRequest request) {
         log.warn("Ошибка валидации запроса: {} \nПуть запроса: {}",
                 e.getMessage(), request.getServletPath());
-        return new ResponseEntity<>(e.getMessage()
-                + "\nПуть запроса: " + request.getServletPath(), HttpStatus.BAD_REQUEST);
+        return Map.of("error", e.getMessage());
     }
+
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleEntityNotFoundException(EntityNotFoundException e, HttpServletRequest request) {
@@ -56,5 +57,6 @@ public class ErrorHandler {
         log.warn("Произошла непредвиденная ошибка: {} \nПуть запроса: {}", e.getMessage(), request.getServletPath());
         return new ErrorResponse("Произошла непредвиденная ошибка по пути запроса: " + request.getServletPath());
     }
+
 
 }

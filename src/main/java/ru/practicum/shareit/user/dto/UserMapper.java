@@ -29,12 +29,4 @@ public class UserMapper {
         return user1;
     }
 
-    public static User toUpdateUser(Long userId, UserDto userDto) {
-        User user = new User();
-        user.setId(userId);
-        user.setName(userDto.getName() != null ? userDto.getName() : null);
-        user.setEmail(userDto.getEmail() != null ? userDto.getEmail() : null);
-        return user;
-    }
-
 }

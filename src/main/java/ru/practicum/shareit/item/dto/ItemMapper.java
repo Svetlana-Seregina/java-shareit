@@ -1,7 +1,12 @@
 package ru.practicum.shareit.item.dto;
 
 import lombok.experimental.UtilityClass;
+import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.model.User;
+
+import java.util.List;
 
 @UtilityClass
 public class ItemMapper {
@@ -15,6 +20,33 @@ public class ItemMapper {
                 item.getOwnerId(),
                 item.getRequestId()
         );
+    }
+
+    public static ItemDto toItemDtoWithComment(ItemDto itemDto, List<Comment> allComments) {
+        for (Comment comment : allComments) {
+            comment.setAuthorName(comment.getAuthor().getName());
+        }
+        Comment[] comments = allComments.toArray(new Comment[0]);
+        itemDto.setComments(comments);
+        return itemDto;
+    }
+
+    public static ItemDto toItemDtoWithBooking(ItemDto itemDto, Booking lastBooking, Booking nextBooking) {
+        if (lastBooking.equals(new Booking()) && nextBooking.equals(new Booking())) {
+            return itemDto;
+        }
+        itemDto.setLastBooking(lastBooking);
+        User lastBookingBooker = lastBooking.getBooker();
+        if (lastBookingBooker != null) {
+            lastBooking.setBookerId(lastBookingBooker.getId());
+        }
+        itemDto.setNextBooking(nextBooking);
+        User nextBookingBooker = nextBooking.getBooker();
+        if (nextBookingBooker != null) {
+            nextBooking.setBookerId(nextBookingBooker.getId());
+        }
+
+        return itemDto;
     }
 
     public static Item toItem(Long userId, ItemDto itemDto) {
@@ -37,4 +69,5 @@ public class ItemMapper {
         item.setRequestId(itemDtoWithId.getRequestId());
         return item;
     }
+
 }
