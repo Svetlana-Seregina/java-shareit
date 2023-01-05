@@ -3,6 +3,7 @@ package ru.practicum.shareit.item.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exceptions.EntityNotFoundException;
@@ -24,6 +25,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Slf4j
 public class ItemServiceImpl implements ItemService {
@@ -34,16 +36,18 @@ public class ItemServiceImpl implements ItemService {
     private final BookingRepository bookingRepository;
     private final UserService userService;
 
+    @Transactional
     @Override
-    public ItemDto save(Long userId, ItemDto itemDto) {
+    public ItemDto save(long userId, ItemDto itemDto) {
         userService.findById(userId);
         log.info("Создание вещи.");
         Item item = itemRepository.save(ItemMapper.toItem(userId, itemDto));
         return ItemMapper.toItemDto(item);
     }
 
+    @Transactional
     @Override
-    public ItemDto update(Long userId, Long id, ItemDto itemDto) {
+    public ItemDto update(long userId, long id, ItemDto itemDto) {
         userService.findById(userId);
         log.info("Обновление вещи.");
         ItemDto itemDtoWithId = findById(userId, id);
@@ -58,7 +62,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemDto findById(Long userId, Long id) {
+    public ItemDto findById(long userId, long id) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Пользователя с id = %d нет в базе.", id)));
         log.info("ПОЛЬЗОВАТЕЛЬ {}", user);
@@ -96,7 +100,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> findAll(Long userId) {
+    public List<ItemDto> findAll(long userId) {
         userService.findById(userId);
         log.info("Получение всех вещей пользователя с id = {}", userId);
         List<Item> allItems = itemRepository.findAll();
@@ -121,7 +125,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> search(Long userId, String text) {
+    public List<ItemDto> search(long userId, String text) {
         log.info("Поиск вещи по запросу пользователя: {}", text);
         List<Item> itemList = itemRepository.search(text);
         log.info("Количество вещей, найденных по запросу пользователя = {}", itemList.size());
@@ -131,8 +135,9 @@ public class ItemServiceImpl implements ItemService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     @Override
-    public CommentDto save(Long userId, Long id, CommentDto commentDto) {
+    public CommentDto save(long userId, long id, CommentDto commentDto) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Пользователя с id = %d нет в базе.", id)));
         log.info("ПОЛЬЗОВАТЕЛЬ {}", user);

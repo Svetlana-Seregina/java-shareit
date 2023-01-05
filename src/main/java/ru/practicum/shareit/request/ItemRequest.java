@@ -10,7 +10,6 @@ import java.time.LocalDate;
 @Table(name = "requests", schema = "public")
 @Getter
 @Setter
-@ToString
 public class ItemRequest {
 
     @Id

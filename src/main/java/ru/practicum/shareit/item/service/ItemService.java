@@ -7,15 +7,15 @@ import java.util.List;
 
 public interface ItemService {
 
-    ItemDto save(Long userId, ItemDto itemDto);
+    ItemDto save(long userId, ItemDto itemDto);
 
-    ItemDto update(Long userId, Long id, ItemDto itemDto);
+    ItemDto update(long userId, long id, ItemDto itemDto);
 
-    ItemDto findById(Long userId, Long id);
+    ItemDto findById(long userId, long id);
 
-    List<ItemDto> findAll(Long userId);
+    List<ItemDto> findAll(long userId);
 
-    List<ItemDto> search(Long userId, String text);
+    List<ItemDto> search(long userId, String text);
 
-    CommentDto save(Long userId, Long id, CommentDto commentDto);
+    CommentDto save(long userId, long id, CommentDto commentDto);
 }

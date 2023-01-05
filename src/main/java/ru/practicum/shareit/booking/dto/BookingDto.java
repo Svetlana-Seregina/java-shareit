@@ -18,4 +18,16 @@ public class BookingDto {
     private final Item item;
     private final Long itemId;
 
+    @Data
+    public static class User {
+        private final long id;
+        private final String name;
+    }
+
+    @Data
+    public static class Item {
+        private final long id;
+        private final String name;
+    }
+
 }

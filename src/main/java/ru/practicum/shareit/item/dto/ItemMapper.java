@@ -49,7 +49,7 @@ public class ItemMapper {
         return itemDto;
     }
 
-    public static Item toItem(Long userId, ItemDto itemDto) {
+    public static Item toItem(long userId, ItemDto itemDto) {
         Item item = new Item();
         item.setName(itemDto.getName());
         item.setDescription(itemDto.getDescription());

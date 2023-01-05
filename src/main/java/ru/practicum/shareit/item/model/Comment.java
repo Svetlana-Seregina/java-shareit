@@ -11,7 +11,6 @@ import java.time.LocalDateTime;
 @Table(name = "comments", schema = "public")
 @Getter
 @Setter
-@ToString
 public class Comment {
 
     @Id

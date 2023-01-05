@@ -36,4 +36,6 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     List<Booking> getAllByItem_IdAndStartIsBeforeAndEndIsBefore(Long id, LocalDateTime ldt1, LocalDateTime ldt2);
 
+
+
 }

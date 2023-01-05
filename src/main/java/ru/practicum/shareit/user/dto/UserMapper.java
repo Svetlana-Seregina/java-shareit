@@ -21,12 +21,4 @@ public class UserMapper {
         return user;
     }
 
-    public static User toUpdateUser(UserDto user, UserDto userDto) {
-        User user1 = new User();
-        user1.setId(user.getId());
-        user1.setName(userDto.getName() != null ? userDto.getName() : user.getName());
-        user1.setEmail(userDto.getEmail() != null ? userDto.getEmail() : user.getEmail());
-        return user1;
-    }
-
 }

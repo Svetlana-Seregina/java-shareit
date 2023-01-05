@@ -18,16 +18,16 @@ public class BookingController {
     private final BookingService bookingService;
 
     @PostMapping
-    public BookingDto save(@RequestHeader("X-Sharer-User-Id") Long userId, @Valid @RequestBody BookingDto bookingDto) {
+    public BookingDto save(@RequestHeader("X-Sharer-User-Id") long userId, @Valid @RequestBody BookingDto bookingDto) {
         log.warn("Обрабатываем запрос аренду вещи: {} от пользователя: {}", bookingDto, userId);
         return bookingService.save(userId, bookingDto);
     }
 
     // PATCH /bookings/:bookingId?approved={approved} (параметр approved может принимать значения true или false)
     @PatchMapping("{id}")
-    public BookingDto update(@RequestHeader("X-Sharer-User-Id") Long userId,
-                             @PathVariable Long id,
-                             @RequestParam(value = "approved", required = false) String approved) {
+    public BookingDto update(@RequestHeader("X-Sharer-User-Id") long userId,
+                                    @PathVariable long id,
+                                    @RequestParam(value = "approved", required = false) Boolean approved) {
         log.warn("Обрабатываем запрос на обновление статуса аренды = {} вещи от владельца с id: {}, id аренды: {}",
                 approved, userId, id);
         return bookingService.update(userId, id, approved);
@@ -35,25 +35,27 @@ public class BookingController {
 
     // GET /bookings/{bookingId}
     @GetMapping("{id}")
-    public BookingDto findById(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long id) {
+    public BookingDto findById(@RequestHeader("X-Sharer-User-Id") long userId, @PathVariable long id) {
         log.warn("Обрабатываем запрос на получение аренды вещи по id = {} от владельца вещи или арендатора с id: {}", id, userId);
         return bookingService.findById(userId, id);
     }
 
     // GET /bookings?state={state}
     @GetMapping
-    public List<BookingDto> findAll(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                    @RequestParam(value = "state", required = false, defaultValue = "ALL") String state) {
+    public List<BookingDto> findAll(@RequestHeader("X-Sharer-User-Id") long userId,
+                                           @RequestParam(value = "state", defaultValue = "ALL") String state) {
         log.warn("Обрабатываем запрос на получение списка всех бронирований пользователя: {}, статус бронирования: {}", userId, state);
         return bookingService.findAll(userId, state);
     }
 
     // GET /bookings/owner?state={state}
     @GetMapping("/owner")
-    public List<BookingDto> findAllByOwner(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                           @RequestParam(value = "state", required = false, defaultValue = "ALL") String state) {
-        log.warn("Обрабатываем запрос на получение списка всех бронирований пользователя: {}, статус бронирования: {}", userId, state);
-        return bookingService.findAllByOwner(userId, state);
+    public List<BookingDto> findAllByOwner(@RequestHeader("X-Sharer-User-Id") long userId,
+                                                  @RequestParam(value = "state", defaultValue = "ALL") String state) {
+
+            log.warn("Обрабатываем запрос на получение списка всех бронирований пользователя: {}, статус бронирования: {}", userId, state);
+            return bookingService.findAllByOwner(userId, state);
+
     }
 
 }
