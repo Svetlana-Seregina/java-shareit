@@ -28,9 +28,6 @@ public class Comment {
     @JoinColumn(name = "author_id")
     private User author;
 
-    @Transient
-    private String authorName;
-
     private LocalDateTime created;
 
 }

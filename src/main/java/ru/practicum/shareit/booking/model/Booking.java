@@ -36,9 +36,6 @@ public class Booking {
     @JoinColumn(name = "booker_id")
     private User booker;
 
-    @Transient
-    private Long bookerId;
-
     @Enumerated(EnumType.STRING)
     private BookingState status;
 

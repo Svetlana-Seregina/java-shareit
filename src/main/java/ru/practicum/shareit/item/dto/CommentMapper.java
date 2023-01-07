@@ -14,9 +14,8 @@ public class CommentMapper {
         return new CommentDto(
                 comment.getId(),
                 comment.getText(),
-                comment.getItem(),
-                comment.getAuthor(),
-                comment.getAuthor().getName(),
+                new CommentDto.Item(comment.getItem().getId(), comment.getItem().getName()),
+                new CommentDto.User(comment.getAuthor().getId(), comment.getAuthor().getName()),
                 comment.getCreated()
         );
     }
@@ -28,5 +27,14 @@ public class CommentMapper {
         comment.setAuthor(user);
         comment.setCreated(LocalDateTime.now());
         return comment;
+    }
+
+    public static CommentDtoCreate toCommentDtoCreate(Comment comment) {
+        return new CommentDtoCreate(
+                comment.getId(),
+                comment.getText(),
+                comment.getAuthor().getName(),
+                comment.getCreated()
+        );
     }
 }

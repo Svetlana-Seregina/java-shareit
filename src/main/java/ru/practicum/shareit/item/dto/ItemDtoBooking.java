@@ -10,7 +10,7 @@ import javax.validation.constraints.NotNull;
 @Data
 @RequiredArgsConstructor
 @Setter
-public class ItemDto {
+public class ItemDtoBooking {
 
     private final Long id;
     @NotBlank
@@ -19,8 +19,6 @@ public class ItemDto {
     private final String description;
     @NotNull
     private final Boolean available;
-    private final Long ownerId;
-    private final Long requestId;
     private Booking lastBooking;
     private Booking nextBooking;
     private CommentDtoCreate[] comments = new CommentDtoCreate[0];
@@ -30,5 +28,6 @@ public class ItemDto {
         private final long id;
         private final long bookerId;
     }
+
 
 }
