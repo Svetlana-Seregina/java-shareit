@@ -9,7 +9,6 @@ import javax.validation.constraints.Future;
 import javax.validation.constraints.FutureOrPresent;
 import java.time.LocalDateTime;
 
-@Data
 @Entity
 @Table(name = "bookings", schema = "public")
 @Getter

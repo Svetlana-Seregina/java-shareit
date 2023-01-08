@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.model.BookingState;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exceptions.EntityNotFoundException;
 import ru.practicum.shareit.exceptions.ValidationException;
@@ -38,16 +39,16 @@ public class ItemServiceImpl implements ItemService {
 
     @Transactional
     @Override
-    public ItemDtoRequest save(long userId, ItemDto itemDto) {
+    public ItemDtoResponse save(long userId, ItemDtoRequest itemDtoRequest) {
         userService.findById(userId);
         log.info("Создание вещи.");
-        Item item = itemRepository.save(ItemMapper.toItem(userId, itemDto));
+        Item item = itemRepository.save(ItemMapper.toItem(userId, itemDtoRequest));
         return ItemMapper.toItemDtoRequest(item);
     }
 
     @Transactional
     @Override
-    public ItemDtoRequest update(long userId, long id, ItemDto itemDto) {
+    public ItemDtoResponse update(long userId, long id, ItemDtoRequest itemDtoRequest) {
         userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Пользователя с id = %d нет в базе.", id)));
         Item item = itemRepository.findById(id)
@@ -58,9 +59,11 @@ public class ItemServiceImpl implements ItemService {
             throw new EntityNotFoundException(String.format("Вещи с id = %d нет у пользователя с id = %d", id, userId));
         }
 
-        item.setName(itemDto.getName() != null ? itemDto.getName() : item.getName());
-        item.setDescription(itemDto.getDescription() != null ? itemDto.getDescription() : item.getDescription());
-        item.setAvailable(itemDto.getAvailable() != null ? itemDto.getAvailable() : item.getAvailable());
+        item.setName(itemDtoRequest.getName() != null && !itemDtoRequest.getName().isBlank() ?
+                itemDtoRequest.getName() : item.getName());
+        item.setDescription(itemDtoRequest.getDescription() != null && !itemDtoRequest.getDescription().isBlank() ?
+                itemDtoRequest.getDescription() : item.getDescription());
+        item.setAvailable(itemDtoRequest.getAvailable() != null ? itemDtoRequest.getAvailable() : item.getAvailable());
         log.info("Вещь обновлена: {}", item);
 
         return ItemMapper.toItemDtoRequest(item);
@@ -79,15 +82,15 @@ public class ItemServiceImpl implements ItemService {
         if (item.getOwnerId().equals(userId)) {
             ItemDtoBooking itemDtoBooking = ItemMapper.toItemDtoBooking(item);
 
-            Booking lastBooking =
-                    bookingRepository.getAllByItem_IdAndStartBeforeAndEndBefore(id, LocalDateTime.now(), LocalDateTime.now()).orElse(null);
+            List<Booking> lastBooking =
+                    bookingRepository.getAllByItem_IdAndStartIsLessThanEqualAndEndIsLessThanEqualAndStatusIs(
+                            id, LocalDateTime.now(), LocalDateTime.now(), BookingState.APPROVED);
             log.info("lastBooking найдено?: {}", lastBooking);
 
-            Booking nextBooking =
-                    bookingRepository.getAllByItem_IdAndStartIsAfter(id, LocalDateTime.now()).orElse(null);
+            List<Booking> nextBooking =
+                    bookingRepository.getAllByItem_IdAndStartIsAfterAndStatusIs(
+                            id, LocalDateTime.now(), BookingState.APPROVED);
             log.info("nextBooking найдено?: {}", nextBooking);
-
-            ItemDtoBooking itemDtoWithBooking = ItemMapper.toItemDtoWithBookings(itemDtoBooking, lastBooking, nextBooking);
 
             List<Comment> comments = commentRepository.findAllByItem_Id(id);
             log.info("Список comments : {}", comments);
@@ -95,7 +98,7 @@ public class ItemServiceImpl implements ItemService {
             if (comments.isEmpty() && lastBooking == null && nextBooking == null) {
                 return itemDtoBooking;
             }
-
+            ItemDtoBooking itemDtoWithBooking = ItemMapper.toItemDtoWithBookings(itemDtoBooking, lastBooking, nextBooking);
             ItemDtoBooking itemDtoWithComment = ItemMapper.toItemDtoBookingWithComment(itemDtoWithBooking, comments);
             log.info("ВЕЩЬ с бронированием и комментариями: {}", itemDtoWithComment);
             return itemDtoWithComment;
@@ -119,25 +122,31 @@ public class ItemServiceImpl implements ItemService {
 
         List<Item> items = itemRepository.findAllByOwnerId(userId);
 
-        Map<Long, Booking> lastBookingByItemId =
-                bookingRepository.getAllByItem_InAndStartBeforeAndEndBefore(items, LocalDateTime.now(), LocalDateTime.now())
+        Map<Long, List<Booking>> lastBookingByItemId =
+                bookingRepository.getAllByItem_InAndStartIsLessThanEqualAndEndIsLessThanEqualAndStatusIs(
+                                items, LocalDateTime.now(), LocalDateTime.now(), BookingState.APPROVED)
                         .stream()
-                        .collect(Collectors.toMap(b -> b.getItem().getId(), b -> b));
+                        .collect(Collectors.groupingBy(b -> b.getItem().getId(), toList()));
 
-        Map<Long, Booking> nextBookingByItemId =
-                bookingRepository.getAllByItem_InAndStartAfter(items, LocalDateTime.now())
+        Map<Long, List<Booking>> nextBookingByItemId =
+                bookingRepository.getAllByItem_InAndStartAfterAndStatusIs(items, LocalDateTime.now(), BookingState.APPROVED)
                         .stream()
-                        .collect(Collectors.toMap(b -> b.getItem().getId(), b -> b));
+                        .collect(Collectors.groupingBy(b -> b.getItem().getId(), toList()));
 
         Map<Long, List<Comment>> comments = commentRepository.findByItem_In(items)
                 .stream()
                 .collect(groupingBy(c -> c.getItem().getId(), toList()));
 
-        List<ItemDtoBooking> allItemsDto = items.stream()
+        return items.stream()
                 .map(ItemMapper::toItemDtoBooking)
-                .map(itemDtoBooking -> ItemMapper.toItemDtoWithBookings(itemDtoBooking,
-                        lastBookingByItemId.get(itemDtoBooking.getId()),
-                        nextBookingByItemId.get(itemDtoBooking.getId())))
+                .map(itemDtoBooking -> {
+                    List<Booking> lastBookings = lastBookingByItemId.get(itemDtoBooking.getId());
+                    List<Booking> nextBookings = nextBookingByItemId.get(itemDtoBooking.getId());
+                    if (lastBookings != null || nextBookings != null) {
+                        return ItemMapper.toItemDtoWithBookings(itemDtoBooking, lastBookings, nextBookings);
+                    }
+                    return itemDtoBooking;
+                })
                 .map(itemDtoBooking -> {
                     List<Comment> allComments = comments.get(itemDtoBooking.getId());
                     if (allComments != null) {
@@ -147,13 +156,10 @@ public class ItemServiceImpl implements ItemService {
                 })
                 .sorted(Comparator.comparing(ItemDtoBooking::getId))
                 .collect(toList());
-        log.info("Всего найдено вещей пользователя = {}", items.size());
-
-        return allItemsDto;
     }
 
     @Override
-    public List<ItemDtoRequest> search(long userId, String text) {
+    public List<ItemDtoResponse> search(long userId, String text) {
         log.info("Поиск вещи по запросу пользователя: {}", text);
         List<Item> itemList = itemRepository.search(text);
         log.info("Количество вещей, найденных по запросу пользователя = {}", itemList.size());
@@ -164,7 +170,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Transactional
     @Override
-    public CommentDtoCreate save(long userId, long id, CommentDto commentDto) {
+    public CommentDtoResponse save(long userId, long id, CommentDtoCreate commentDtoCreate) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Пользователя с id = %d нет в базе.", id)));
         log.info("ПОЛЬЗОВАТЕЛЬ {}", user);
@@ -177,9 +183,9 @@ public class ItemServiceImpl implements ItemService {
         if (bookings.size() == 0) {
             throw new ValidationException("У вещи нет бронирований");
         }
-        Comment comment = commentRepository.save(CommentMapper.toComment(user, item, commentDto));
+        Comment comment = commentRepository.save(CommentMapper.toComment(user, item, commentDtoCreate));
         log.info("Создание комментария. {}", comment);
-        return CommentMapper.toCommentDtoCreate(comment);
+        return CommentMapper.toCommentDtoResponse(comment);
     }
 
 }

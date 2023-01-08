@@ -19,17 +19,17 @@ public class ItemController {
     private final ItemService itemService;
 
     @PostMapping
-    public ItemDtoRequest save(@RequestHeader("X-Sharer-User-Id") long userId, @Valid @RequestBody ItemDto itemDto) {
-        log.warn("Обрабатываем запрос на создание вещи: {} от пользователя: {}", itemDto, userId);
-        return itemService.save(userId, itemDto);
+    public ItemDtoResponse save(@RequestHeader("X-Sharer-User-Id") long userId, @Valid @RequestBody ItemDtoRequest itemDtoRequest) {
+        log.warn("Обрабатываем запрос на создание вещи: {} от пользователя: {}", itemDtoRequest, userId);
+        return itemService.save(userId, itemDtoRequest);
     }
 
     @PatchMapping("/{id}")
-    public ItemDtoRequest update(@RequestHeader("X-Sharer-User-Id") long userId,
-                                 @PathVariable long id,
-                                 @RequestBody ItemDto itemDto) {
-        log.warn("Обрабатываем запрос на обновление вещи: {} от пользователя: {}", itemDto, userId);
-        return itemService.update(userId, id, itemDto);
+    public ItemDtoResponse update(@RequestHeader("X-Sharer-User-Id") long userId,
+                                  @PathVariable long id,
+                                  @RequestBody ItemDtoRequest itemDtoRequest) {
+        log.warn("Обрабатываем запрос на обновление вещи: {} от пользователя: {}", itemDtoRequest, userId);
+        return itemService.update(userId, id, itemDtoRequest);
     }
 
     @GetMapping("/{id}")
@@ -46,8 +46,8 @@ public class ItemController {
 
     // /items/search?text={text}
     @GetMapping("/search")
-    public List<ItemDtoRequest> searchAllByRequestText(@RequestHeader("X-Sharer-User-Id") long userId,
-                                                       @RequestParam(value = "text") String text) {
+    public List<ItemDtoResponse> searchAllByRequestText(@RequestHeader("X-Sharer-User-Id") long userId,
+                                                        @RequestParam(value = "text") String text) {
         if (text.isBlank()) {
             return Collections.emptyList();
         }
@@ -57,12 +57,12 @@ public class ItemController {
 
     // POST /items/{itemId}/comment
     @PostMapping("/{id}/comment")
-    public CommentDtoCreate save(@RequestHeader("X-Sharer-User-Id") long userId,
-                                 @PathVariable long id,
-                                 @Valid @RequestBody CommentDto commentDto) {
+    public CommentDtoResponse save(@RequestHeader("X-Sharer-User-Id") long userId,
+                                   @PathVariable long id,
+                                   @Valid @RequestBody CommentDtoCreate commentDtoCreate) {
         log.warn("Обрабатываем запрос на создание комметария к вещи с id = {}, комментарий = {}, от пользователя: {}",
-                id, commentDto, userId);
-        return itemService.save(userId, id, commentDto);
+                id, commentDtoCreate, userId);
+        return itemService.save(userId, id, commentDtoCreate);
     }
 
 

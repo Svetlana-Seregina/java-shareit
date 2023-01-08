@@ -30,4 +30,15 @@ public class BookingMapper {
         return booking;
     }
 
+    public static BookingDtoResponse toBookingDtoResponse(Booking booking) {
+        return new BookingDtoResponse(
+                booking.getId(),
+                booking.getStart(),
+                booking.getEnd(),
+                booking.getStatus(),
+                new BookingDtoResponse.User(booking.getBooker().getId()),
+                new BookingDtoResponse.Item(booking.getItem().getId(), booking.getItem().getName())
+        );
+    }
+
 }

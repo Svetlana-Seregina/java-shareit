@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking.repository;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingState;
@@ -7,13 +8,12 @@ import ru.practicum.shareit.item.model.Item;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
 
-    List<Booking> getAllByBooker_IdOrderByStartDesc(Long userId);
+    List<Booking> getAllByBooker_Id(Long userId, Sort sort);
 
-    List<Booking> getAllByBooker_IdAndStartIsAfterOrderByStartDesc(Long userId, LocalDateTime localDateTime);
+    List<Booking> getAllByBooker_IdAndStartIsAfter(Long userId, LocalDateTime localDateTime, Sort sort);
 
     List<Booking> getAllByBooker_IdAndStatusAndStartIsAfter(Long userId, BookingState state, LocalDateTime localDateTime);
 
@@ -25,21 +25,23 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     List<Booking> getAllByItem_OwnerIdAndStartBeforeAndEndBefore(Long userId, LocalDateTime ldt1, LocalDateTime ldt2);
 
-    List<Booking> getAllByItem_OwnerIdOrderByStartDesc(Long userId);
+    List<Booking> getAllByItem_OwnerId(Long userId, Sort sort);
 
-    List<Booking> getAllByItem_OwnerIdAndStartIsAfterOrderByStartDesc(Long userId, LocalDateTime localDateTime);
+    List<Booking> getAllByItem_OwnerIdAndStartIsAfter(Long userId, LocalDateTime localDateTime, Sort sort);
 
     List<Booking> getAllByItem_OwnerIdAndStatusAndStartIsAfter(Long id, BookingState state, LocalDateTime localDateTime);
 
-    Optional<Booking> getAllByItem_IdAndStartBeforeAndEndBefore(Long id, LocalDateTime ldt1, LocalDateTime ldt2);
+    List<Booking> getAllByItem_IdAndStartIsLessThanEqualAndEndIsLessThanEqualAndStatusIs(
+            Long id, LocalDateTime ldt1, LocalDateTime ldt2, BookingState bs);
 
-    Optional<Booking> getAllByItem_IdAndStartIsAfter(Long id, LocalDateTime localDateTime);
+    List<Booking> getAllByItem_IdAndStartIsAfterAndStatusIs(Long id, LocalDateTime localDateTime, BookingState bs);
 
     List<Booking> getAllByItem_IdAndStartIsBeforeAndEndIsBefore(Long id, LocalDateTime ldt1, LocalDateTime ldt2);
 
-    List<Booking> getAllByItem_InAndStartBeforeAndEndBefore(List<Item> items, LocalDateTime ldt1, LocalDateTime ldt2);
+    List<Booking> getAllByItem_InAndStartIsLessThanEqualAndEndIsLessThanEqualAndStatusIs(
+            List<Item> items, LocalDateTime ldt1, LocalDateTime ldt2, BookingState bs);
 
-    List<Booking> getAllByItem_InAndStartAfter(List<Item> items, LocalDateTime localDateTime);
+    List<Booking> getAllByItem_InAndStartAfterAndStatusIs(List<Item> items, LocalDateTime ldt, BookingState bs);
 
 
 }

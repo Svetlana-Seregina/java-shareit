@@ -2,10 +2,11 @@ package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoRequest;
+import ru.practicum.shareit.booking.dto.BookingDtoResponse;
 import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingState;
@@ -32,10 +33,11 @@ public class BookingServiceImpl implements BookingService {
     private final UserService userService;
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
+    Sort sortByStartDesc = Sort.by(Sort.Direction.DESC, "start");
 
     @Transactional
     @Override
-    public BookingDto save(long userId, BookingDtoRequest bookingDtoRequest) {
+    public BookingDtoResponse save(long userId, BookingDtoRequest bookingDtoRequest) {
         Item item = itemRepository.findById(bookingDtoRequest.getItemId())
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Вещи с id = %d нет в базе.", bookingDtoRequest.getItemId())));
         log.info("ВЕЩЬ: {}", item);
@@ -51,12 +53,12 @@ public class BookingServiceImpl implements BookingService {
         }
         Booking booking = bookingRepository.save(BookingMapper.toBooking(user, item, bookingDtoRequest));
         log.info("СОЗДАН ЗАПРОС НА АРЕНДУ С id: {}, статус: {}", booking.getId(), booking.getStatus());
-        return BookingMapper.toBookingDto(booking);
+        return BookingMapper.toBookingDtoResponse(booking);
     }
 
     @Transactional
     @Override
-    public BookingDto update(long userId, long id, boolean approved) {
+    public BookingDtoResponse update(long userId, long id, boolean approved) {
         Booking booking = bookingRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Бронирования с id = %d нет в базе.", id)));
         log.info("Найдено бронирование: {}", booking);
@@ -67,11 +69,11 @@ public class BookingServiceImpl implements BookingService {
         }
         booking.setStatus(approved ? BookingState.APPROVED : BookingState.REJECTED);
         log.info("BOOKING APPROVED: {}", booking);
-        return BookingMapper.toBookingDto(booking);
+        return BookingMapper.toBookingDtoResponse(booking);
     }
 
     @Override
-    public BookingDto findById(long userId, long id) { // bookerId or ItemOwnerId
+    public BookingDtoResponse findById(long userId, long id) { // bookerId or ItemOwnerId
         userService.findById(userId);
         Booking booking = bookingRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Бронирования с id = %d нет в базе.", id)));
@@ -80,25 +82,19 @@ public class BookingServiceImpl implements BookingService {
             throw new EntityNotFoundException("Бронирование не может быть получено не владельцем вещи или не автором бронирования");
         }
         log.info("Бронирование получено.");
-        return BookingMapper.toBookingDto(booking);
+        return BookingMapper.toBookingDtoResponse(booking);
     }
 
     @Override
-    public List<BookingDto> findAll(long userId, String state) {
-        userService.findById(userId);
+    public List<BookingDtoResponse> findAll(long userId, String state) {
+        BookingState bookingState = validationUserAndState(userId, state);
         List<Booking> allBookings;
-        BookingState bookingState;
-        try {
-            bookingState = BookingState.valueOf(state);
-        } catch (IllegalArgumentException ex) {
-            throw new ValidationException("Unknown state: " + state);
-        }
         switch (bookingState) {
             case ALL:
-                allBookings = bookingRepository.getAllByBooker_IdOrderByStartDesc(userId);
+                allBookings = bookingRepository.getAllByBooker_Id(userId, sortByStartDesc);
                 break;
             case FUTURE:
-                allBookings = bookingRepository.getAllByBooker_IdAndStartIsAfterOrderByStartDesc(userId, LocalDateTime.now());
+                allBookings = bookingRepository.getAllByBooker_IdAndStartIsAfter(userId, LocalDateTime.now(), sortByStartDesc);
                 break;
             case CURRENT:
                 allBookings = bookingRepository
@@ -121,27 +117,20 @@ public class BookingServiceImpl implements BookingService {
         }
 
         return allBookings.stream()
-                .map(BookingMapper::toBookingDto)
+                .map(BookingMapper::toBookingDtoResponse)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<BookingDto> findAllByOwner(long userId, String state) {
-        userService.findById(userId);
+    public List<BookingDtoResponse> findAllByOwner(long userId, String state) {
+        BookingState bookingState = validationUserAndState(userId, state);
         List<Booking> allBookings;
-        BookingState bookingState;
-        try {
-            bookingState = BookingState.valueOf(state);
-        } catch (IllegalArgumentException ex) {
-            throw new ValidationException("Unknown state: " + state);
-        }
-
         switch (bookingState) {
             case ALL:
-                allBookings = bookingRepository.getAllByItem_OwnerIdOrderByStartDesc(userId);
+                allBookings = bookingRepository.getAllByItem_OwnerId(userId, sortByStartDesc);
                 break;
             case FUTURE:
-                allBookings = bookingRepository.getAllByItem_OwnerIdAndStartIsAfterOrderByStartDesc(userId, LocalDateTime.now());
+                allBookings = bookingRepository.getAllByItem_OwnerIdAndStartIsAfter(userId, LocalDateTime.now(), sortByStartDesc);
                 break;
             case CURRENT:
                 allBookings = bookingRepository
@@ -167,8 +156,19 @@ public class BookingServiceImpl implements BookingService {
         log.info("Найдены вещи пользователя: {}", allBookings);
 
         return allBookings.stream()
-                .map(BookingMapper::toBookingDto)
+                .map(BookingMapper::toBookingDtoResponse)
                 .collect(Collectors.toList());
+    }
+
+    private BookingState validationUserAndState(Long userId, String state) {
+        userService.findById(userId);
+        BookingState bookingState;
+        try {
+            bookingState = BookingState.valueOf(state);
+        } catch (IllegalArgumentException ex) {
+            throw new ValidationException("Unknown state: " + state);
+        }
+        return bookingState;
     }
 
 }

@@ -11,8 +11,8 @@ import java.util.List;
 @UtilityClass
 public class ItemMapper {
 
-    public static ItemDto toItemDto(Item item) {
-        return new ItemDto(
+    public static ItemDtoRequest toItemDto(Item item) {
+        return new ItemDtoRequest(
                 item.getId(),
                 item.getName(),
                 item.getDescription(),
@@ -22,18 +22,19 @@ public class ItemMapper {
         );
     }
 
-    public static Item toItem(long userId, ItemDto itemDto) {
+
+    public static Item toItem(long userId, ItemDtoRequest itemDtoRequest) {
         Item item = new Item();
-        item.setName(itemDto.getName());
-        item.setDescription(itemDto.getDescription());
-        item.setAvailable(itemDto.getAvailable());
+        item.setName(itemDtoRequest.getName());
+        item.setDescription(itemDtoRequest.getDescription());
+        item.setAvailable(itemDtoRequest.getAvailable());
         item.setOwnerId(userId);
-        item.setRequestId(itemDto.getRequestId());
+        item.setRequestId(itemDtoRequest.getRequestId());
         return item;
     }
 
-    public static ItemDtoRequest toItemDtoRequest(Item item) {
-        return new ItemDtoRequest(
+    public static ItemDtoResponse toItemDtoRequest(Item item) {
+        return new ItemDtoResponse(
                 item.getId(),
                 item.getName(),
                 item.getDescription(),
@@ -41,12 +42,16 @@ public class ItemMapper {
         );
     }
 
-    public static ItemDtoBooking toItemDtoWithBookings(ItemDtoBooking idb, Booking lastBooking, Booking nextBooking) {
+    public static ItemDtoBooking toItemDtoWithBookings(ItemDtoBooking idb, List<Booking> lastBooking, List<Booking> nextBooking) {
         if (lastBooking != null) {
-            idb.setLastBooking(new ItemDtoBooking.Booking(lastBooking.getId(), lastBooking.getBooker().getId()));
+            for (Booking lb : lastBooking) {
+                idb.setLastBooking(new ItemDtoBooking.Booking(lb.getId(), lb.getBooker().getId()));
+            }
         }
         if (nextBooking != null) {
-            idb.setNextBooking(new ItemDtoBooking.Booking(nextBooking.getId(), nextBooking.getBooker().getId()));
+            for (Booking nb : nextBooking) {
+                idb.setNextBooking(new ItemDtoBooking.Booking(nb.getId(), nb.getBooker().getId()));
+            }
         }
         return idb;
     }
@@ -61,12 +66,12 @@ public class ItemMapper {
     }
 
     public static ItemDtoBooking toItemDtoBookingWithComment(ItemDtoBooking itemDtoBooking, List<Comment> allComments) {
-        List<CommentDtoCreate> comm = new ArrayList<>();
+        List<CommentDtoResponse> comm = new ArrayList<>();
         for (Comment comment : allComments) {
-            CommentDtoCreate commentDtoCreate = CommentMapper.toCommentDtoCreate(comment);
+            CommentDtoResponse commentDtoCreate = CommentMapper.toCommentDtoResponse(comment);
             comm.add(commentDtoCreate);
         }
-        CommentDtoCreate[] comments = comm.toArray(new CommentDtoCreate[0]);
+        CommentDtoResponse[] comments = comm.toArray(new CommentDtoResponse[0]);
         itemDtoBooking.setComments(comments);
         return itemDtoBooking;
     }

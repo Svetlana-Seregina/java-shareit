@@ -37,8 +37,8 @@ public class UserServiceImpl implements UserService {
         log.info("Получение пользователя по id = {}", userId);
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Пользователя с id = %d нет в базе.", userId)));
-        user.setName(userDto.getName() != null ? userDto.getName() : user.getName());
-        user.setEmail(userDto.getEmail() != null ? userDto.getEmail() : user.getEmail());
+        user.setName(userDto.getName() != null && !userDto.getName().isBlank() ? userDto.getName() : user.getName());
+        user.setEmail(userDto.getEmail() != null && !userDto.getEmail().isBlank() ? userDto.getEmail() : user.getEmail());
         log.info("Пользователь обновлен user = {}", user);
         return UserMapper.toUserDto(user);
     }
