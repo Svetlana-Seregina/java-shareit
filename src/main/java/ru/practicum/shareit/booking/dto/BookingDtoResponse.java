@@ -6,7 +6,7 @@ import ru.practicum.shareit.booking.model.BookingState;
 import java.time.LocalDateTime;
 
 @Data
-public class BookingDto {
+public class BookingDtoResponse {
 
     private final Long id;
     private final LocalDateTime start;
@@ -18,7 +18,6 @@ public class BookingDto {
     @Data
     public static class User {
         private final long id;
-        private final String name;
     }
 
     @Data
