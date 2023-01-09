@@ -42,16 +42,12 @@ public class ItemMapper {
         );
     }
 
-    public static ItemDtoBooking toItemDtoWithBookings(ItemDtoBooking idb, List<Booking> lastBooking, List<Booking> nextBooking) {
+    public static ItemDtoBooking toItemDtoWithBookings(ItemDtoBooking idb, Booking lastBooking, Booking nextBooking) {
         if (lastBooking != null) {
-            for (Booking lb : lastBooking) {
-                idb.setLastBooking(new ItemDtoBooking.Booking(lb.getId(), lb.getBooker().getId()));
-            }
+            idb.setLastBooking(new ItemDtoBooking.Booking(lastBooking.getId(), lastBooking.getBooker().getId()));
         }
         if (nextBooking != null) {
-            for (Booking nb : nextBooking) {
-                idb.setNextBooking(new ItemDtoBooking.Booking(nb.getId(), nb.getBooker().getId()));
-            }
+            idb.setNextBooking(new ItemDtoBooking.Booking(nextBooking.getId(), nextBooking.getBooker().getId()));
         }
         return idb;
     }

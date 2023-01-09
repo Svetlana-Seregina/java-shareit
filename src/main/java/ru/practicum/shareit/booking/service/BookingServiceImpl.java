@@ -33,7 +33,7 @@ public class BookingServiceImpl implements BookingService {
     private final UserService userService;
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
-    Sort sortByStartDesc = Sort.by(Sort.Direction.DESC, "start");
+    private final Sort sortByStartDesc = Sort.by(Sort.Direction.DESC, "start");
 
     @Transactional
     @Override

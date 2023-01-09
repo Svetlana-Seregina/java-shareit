@@ -22,7 +22,6 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 
 @Service
@@ -82,15 +81,19 @@ public class ItemServiceImpl implements ItemService {
         if (item.getOwnerId().equals(userId)) {
             ItemDtoBooking itemDtoBooking = ItemMapper.toItemDtoBooking(item);
 
-            List<Booking> lastBooking =
-                    bookingRepository.getAllByItem_IdAndStartIsLessThanEqualAndEndIsLessThanEqualAndStatusIs(
+            List<Booking> lastBookings =
+                    bookingRepository.getAllByItem_IdAndStartIsLessThanEqualOrEndIsLessThanEqualAndStatusIs(
                             id, LocalDateTime.now(), LocalDateTime.now(), BookingState.APPROVED);
-            log.info("lastBooking найдено?: {}", lastBooking);
+            Booking lastBooking = lastBookings.stream().max(Comparator.comparing(Booking::getStart)).orElse(null);
 
-            List<Booking> nextBooking =
+            log.info("lastBooking найдено?: {}", lastBookings);
+
+            List<Booking> nextBookings =
                     bookingRepository.getAllByItem_IdAndStartIsAfterAndStatusIs(
                             id, LocalDateTime.now(), BookingState.APPROVED);
-            log.info("nextBooking найдено?: {}", nextBooking);
+            Booking nextBooking = nextBookings.stream().min(Comparator.comparing(Booking::getStart)).orElse(null);
+
+            log.info("nextBooking найдено?: {}", nextBookings);
 
             List<Comment> comments = commentRepository.findAllByItem_Id(id);
             log.info("Список comments : {}", comments);
@@ -117,35 +120,55 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDtoBooking> findAll(long userId) {
-        userRepository.findById(userId)
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Пользователя с id = %d нет в базе.", userId)));
-
+        log.info("ПОЛЬЗОВАТЕЛЬ = {}", user.getName());
         List<Item> items = itemRepository.findAllByOwnerId(userId);
+        log.info("ВЕЩИ ПОЛЬЗОВАТЕЛЯ = {}", items.size());
 
-        Map<Long, List<Booking>> lastBookingByItemId =
-                bookingRepository.getAllByItem_InAndStartIsLessThanEqualAndEndIsLessThanEqualAndStatusIs(
+        Map<Long, List<Booking>> lastBookingsByItemId =
+                bookingRepository.getAllByItem_InAndStartIsLessThanEqualOrEndIsLessThanEqualAndStatusIs(
                                 items, LocalDateTime.now(), LocalDateTime.now(), BookingState.APPROVED)
                         .stream()
                         .collect(Collectors.groupingBy(b -> b.getItem().getId(), toList()));
+        log.info("lastBookingsByItemId = {}", lastBookingsByItemId.size());
 
-        Map<Long, List<Booking>> nextBookingByItemId =
-                bookingRepository.getAllByItem_InAndStartAfterAndStatusIs(items, LocalDateTime.now(), BookingState.APPROVED)
+        Map<Long, List<Booking>> nextBookingsByItemId =
+                bookingRepository.getAllByItem_InAndStartAfterAndStatusIs(
+                                items, LocalDateTime.now(), BookingState.APPROVED)
                         .stream()
                         .collect(Collectors.groupingBy(b -> b.getItem().getId(), toList()));
+        log.info("nextBookingsByItemId = {}", nextBookingsByItemId.size());
 
         Map<Long, List<Comment>> comments = commentRepository.findByItem_In(items)
                 .stream()
-                .collect(groupingBy(c -> c.getItem().getId(), toList()));
+                .collect(Collectors.groupingBy(c -> c.getItem().getId(), toList()));
+        log.info("comments = {}", comments.size());
 
         return items.stream()
                 .map(ItemMapper::toItemDtoBooking)
                 .map(itemDtoBooking -> {
-                    List<Booking> lastBookings = lastBookingByItemId.get(itemDtoBooking.getId());
-                    List<Booking> nextBookings = nextBookingByItemId.get(itemDtoBooking.getId());
-                    if (lastBookings != null || nextBookings != null) {
-                        return ItemMapper.toItemDtoWithBookings(itemDtoBooking, lastBookings, nextBookings);
+
+                    if (lastBookingsByItemId.isEmpty() && nextBookingsByItemId.isEmpty()) {
+                        return itemDtoBooking;
                     }
-                    return itemDtoBooking;
+                    List<Booking> lb = lastBookingsByItemId.get(itemDtoBooking.getId());
+                    Booking lastBooking = null;
+                    if (lb != null) {
+                        lastBooking = lastBookingsByItemId.get(itemDtoBooking.getId())
+                                .stream()
+                                .max(Comparator.comparing(Booking::getStart))
+                                .orElse(null);
+                    }
+                    List<Booking> nb = nextBookingsByItemId.get(itemDtoBooking.getId());
+                    Booking nextBooking = null;
+                    if (nb != null) {
+                        nextBooking = nextBookingsByItemId.get(itemDtoBooking.getId())
+                                .stream()
+                                .min(Comparator.comparing(Booking::getStart))
+                                .orElse(null);
+                    }
+                    return ItemMapper.toItemDtoWithBookings(itemDtoBooking, lastBooking, nextBooking);
                 })
                 .map(itemDtoBooking -> {
                     List<Comment> allComments = comments.get(itemDtoBooking.getId());
@@ -181,7 +204,12 @@ public class ItemServiceImpl implements ItemService {
                 .getAllByItem_IdAndStartIsBeforeAndEndIsBefore(id, LocalDateTime.now(), LocalDateTime.now());
         log.info("БРОНИРОВАНИЯ {}", bookings);
         if (bookings.size() == 0) {
-            throw new ValidationException("У вещи нет бронирований");
+            throw new ValidationException("У вещи нет завершенных бронирований");
+        }
+        for (Booking booking : bookings) {
+            if (!booking.getBooker().getId().equals(userId)) {
+                throw new ValidationException("Пользователь не бронировавший вещь не может оставлять комментарий.");
+            }
         }
         Comment comment = commentRepository.save(CommentMapper.toComment(user, item, commentDtoCreate));
         log.info("Создание комментария. {}", comment);
