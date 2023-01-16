@@ -1,5 +1,7 @@
 package ru.practicum.shareit.booking.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import ru.practicum.shareit.booking.model.Booking;
@@ -25,7 +27,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     List<Booking> getAllByItem_OwnerIdAndStartBeforeAndEndBefore(Long userId, LocalDateTime ldt1, LocalDateTime ldt2);
 
-    List<Booking> getAllByItem_OwnerId(Long userId, Sort sort);
+    Page<Booking> getAllByItem_OwnerId(Long userId, Pageable pageable);
 
     List<Booking> getAllByItem_OwnerIdAndStartIsAfter(Long userId, LocalDateTime localDateTime, Sort sort);
 

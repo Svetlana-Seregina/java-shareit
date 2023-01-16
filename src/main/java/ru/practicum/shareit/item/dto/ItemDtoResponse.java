@@ -9,5 +9,6 @@ public class ItemDtoResponse {
     private final String name;
     private final String description;
     private final Boolean available;
+    private final Long requestId;
 
 }

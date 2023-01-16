@@ -23,5 +23,4 @@ public class Item {
     @Column(name = "request_id")
     private Long requestId;
 
-
 }

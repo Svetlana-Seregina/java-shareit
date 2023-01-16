@@ -33,12 +33,13 @@ public class ItemMapper {
         return item;
     }
 
-    public static ItemDtoResponse toItemDtoRequest(Item item) {
+    public static ItemDtoResponse toItemDtoResponse(Item item) {
         return new ItemDtoResponse(
                 item.getId(),
                 item.getName(),
                 item.getDescription(),
-                item.getAvailable()
+                item.getAvailable(),
+                item.getRequestId()
         );
     }
 
@@ -71,5 +72,6 @@ public class ItemMapper {
         itemDtoBooking.setComments(comments);
         return itemDtoBooking;
     }
+
 
 }

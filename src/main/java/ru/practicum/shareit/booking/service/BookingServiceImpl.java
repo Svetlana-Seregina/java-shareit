@@ -2,6 +2,8 @@ package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -86,12 +88,16 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDtoResponse> findAll(long userId, String state) {
+    public List<BookingDtoResponse> findAll(long userId, String state, Long from, Integer size) {
         BookingState bookingState = validationUserAndState(userId, state);
         List<Booking> allBookings;
         switch (bookingState) {
             case ALL:
-                allBookings = bookingRepository.getAllByBooker_Id(userId, sortByStartDesc);
+                allBookings = bookingRepository.getAllByBooker_Id(userId, sortByStartDesc)
+                        .stream()
+                        .skip(from)
+                        .limit(size)
+                        .collect(Collectors.toList());
                 break;
             case FUTURE:
                 allBookings = bookingRepository.getAllByBooker_IdAndStartIsAfter(userId, LocalDateTime.now(), sortByStartDesc);
@@ -122,12 +128,16 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDtoResponse> findAllByOwner(long userId, String state) {
+    public List<BookingDtoResponse> findAllByOwner(long userId, String state, Integer from, Integer size) {
         BookingState bookingState = validationUserAndState(userId, state);
         List<Booking> allBookings;
+        Pageable sortedByStartDesc =
+                PageRequest.of(from, size, sortByStartDesc);
         switch (bookingState) {
             case ALL:
-                allBookings = bookingRepository.getAllByItem_OwnerId(userId, sortByStartDesc);
+                allBookings = bookingRepository.getAllByItem_OwnerId(userId, sortedByStartDesc)
+                        .stream()
+                        .collect(Collectors.toList());
                 break;
             case FUTURE:
                 allBookings = bookingRepository.getAllByItem_OwnerIdAndStartIsAfter(userId, LocalDateTime.now(), sortByStartDesc);

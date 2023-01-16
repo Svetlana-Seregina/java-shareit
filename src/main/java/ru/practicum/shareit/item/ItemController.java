@@ -3,6 +3,7 @@ package ru.practicum.shareit.item;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.service.ItemService;
 
@@ -39,20 +40,36 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemDtoBooking> findAll(@RequestHeader("X-Sharer-User-Id") long userId) {
+    public List<ItemDtoBooking> findAll(@RequestHeader("X-Sharer-User-Id") long userId,
+                                        @RequestParam(value = "from", required = false, defaultValue = "0") Integer from,
+                                        @RequestParam(value = "size", required = false, defaultValue = "20") Integer size) {
         log.info("Обрабатываем запрос на получение всех вещей от пользователя с id: {}", userId);
-        return itemService.findAll(userId);
+        if(from != null && size != null) {
+            if (from < 0 || size <= 0) {
+                throw new ValidationException(String.format("Значения from не может быть отрицательным (from =%d) и " +
+                        "size равняться или быть меньше нуля (size =%d)", from, size));
+            }
+        }
+        return itemService.findAll(userId, from, size);
     }
 
     // /items/search?text={text}
     @GetMapping("/search")
     public List<ItemDtoResponse> searchAllByRequestText(@RequestHeader("X-Sharer-User-Id") long userId,
-                                                        @RequestParam(value = "text") String text) {
+                                                        @RequestParam(value = "text") String text,
+                                                        @RequestParam(value = "from", required = false, defaultValue = "0") Integer from,
+                                                        @RequestParam(value = "size", required = false, defaultValue = "20") Integer size) {
         if (text.isBlank()) {
             return Collections.emptyList();
         }
+        if(from != null && size != null) {
+            if (from < 0 || size <= 0) {
+                throw new ValidationException(String.format("Значения from не может быть отрицательным (from =%d) и " +
+                        "size равняться или быть меньше нуля (size =%d)", from, size));
+            }
+        }
         log.info("Обрабатываем запрос на поиск вещи по запросу пользователя. Текст запроса: {}", text);
-        return itemService.search(userId, text);
+        return itemService.search(userId, text, from, size);
     }
 
     // POST /items/{itemId}/comment
@@ -64,6 +81,5 @@ public class ItemController {
                 id, commentDtoCreate, userId);
         return itemService.save(userId, id, commentDtoCreate);
     }
-
 
 }
