@@ -11,20 +11,20 @@ import java.time.LocalDateTime;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 @JsonTest
-class ItemRequestDtoResponse_JsonTest {
+class ItemRequestsDtoResponseJsonTest {
 
     @Autowired
-    private JacksonTester<ItemRequestDtoResponse> json;
+    private JacksonTester<ItemRequestsDtoResponse> json;
 
     @Test
-    void testItemRequestDtoResponse() throws Exception {
-        ItemRequestDtoResponse itemRequestDtoResponse = new ItemRequestDtoResponse(
+    void testItemRequestsDtoResponse() throws Exception {
+        ItemRequestsDtoResponse itemRequestsDtoResponse = new ItemRequestsDtoResponse(
                 1L,
                 "Need for 4 chairs",
                 LocalDateTime.of(2023, 1, 23, 7, 10, 0)
         );
 
-        JsonContent<ItemRequestDtoResponse> result = json.write(itemRequestDtoResponse);
+        JsonContent<ItemRequestsDtoResponse> result = json.write(itemRequestsDtoResponse);
 
         assertThat(result).extractingJsonPathNumberValue("$.id").isEqualTo(1);
         assertThat(result).extractingJsonPathStringValue("$.description").isEqualTo("Need for 4 chairs");

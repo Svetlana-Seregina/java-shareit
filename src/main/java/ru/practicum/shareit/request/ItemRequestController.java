@@ -42,10 +42,10 @@ public class ItemRequestController {
                                                        @RequestParam(value = "from", required = false, defaultValue = "0") Integer from,
                                                        @RequestParam(value = "size", required = false, defaultValue = "20") Integer size) {
         log.info("Обрабатываем запрос на получение запросов на вещь, от пользователя: {}, " +
-                        "отображение может быть постраничное. Индекс первого элемента, начиная с 0 = {}," +
-                        " количество элементов для отображения на странице = {}", userId, from, size);
-        if(from != null && size != null) {
-            if(from < 0 || size <= 0) {
+                "отображение может быть постраничное. Индекс первого элемента, начиная с 0 = {}," +
+                " количество элементов для отображения на странице = {}", userId, from, size);
+        if (from != null && size != null) {
+            if (from < 0 || size <= 0) {
                 throw new ValidationException(String.format("Значения from не может быть отрицательным (from =%d) и " +
                         "size равняться или быть меньше нуля (size =%d)", from, size));
             }

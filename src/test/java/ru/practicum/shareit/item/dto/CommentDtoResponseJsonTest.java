@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 @JsonTest
-class CommentDtoResponse_JsonTest {
+class CommentDtoResponseJsonTest {
 
     @Autowired
     private JacksonTester<CommentDtoResponse> json;

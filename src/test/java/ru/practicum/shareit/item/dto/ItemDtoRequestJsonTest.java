@@ -9,7 +9,7 @@ import org.springframework.boot.test.json.JsonContent;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 @JsonTest
-class itemDtoRequest_JsonTest {
+class ItemDtoRequestJsonTest {
 
     @Autowired
     private JacksonTester<ItemDtoRequest> json;
