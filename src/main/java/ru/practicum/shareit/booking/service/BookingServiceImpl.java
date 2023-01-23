@@ -19,7 +19,6 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
-import ru.practicum.shareit.user.service.UserService;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -32,7 +31,6 @@ import java.util.stream.Collectors;
 public class BookingServiceImpl implements BookingService {
 
     private final BookingRepository bookingRepository;
-    private final UserService userService;
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
     private final Sort sortByStartDesc = Sort.by(Sort.Direction.DESC, "start");
@@ -47,12 +45,14 @@ public class BookingServiceImpl implements BookingService {
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Пользователя с id = %d нет в базе.", userId)));
         log.info("ПОЛЬЗОВАТЕЛЬ: {}", user);
         log.info("Вещь доступна к аренде?: {}", item.getAvailable());
+
         if (!item.getAvailable().equals(true)) {
             throw new ValidationException("Вещь не доступна к аренде.");
         }
         if (item.getOwnerId().equals(userId)) {
             throw new EntityNotFoundException("Владелец вещи не может забронировать свою вещь.");
         }
+
         Booking booking = bookingRepository.save(BookingMapper.toBooking(user, item, bookingDtoRequest));
         log.info("СОЗДАН ЗАПРОС НА АРЕНДУ С id: {}, статус: {}", booking.getId(), booking.getStatus());
         return BookingMapper.toBookingDtoResponse(booking);
@@ -76,7 +76,8 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingDtoResponse findById(long userId, long id) { // bookerId or ItemOwnerId
-        userService.findById(userId);
+        userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Пользователя с id = %d нет в базе.", userId)));
         Booking booking = bookingRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Бронирования с id = %d нет в базе.", id)));
         log.info("НАЙДЕНО БРОНИРОВАНИЕ: {}", booking);
@@ -171,7 +172,8 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private BookingState validationUserAndState(Long userId, String state) {
-        userService.findById(userId);
+        userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Пользователя с id = %d нет в базе.", userId)));
         BookingState bookingState;
         try {
             bookingState = BookingState.valueOf(state);

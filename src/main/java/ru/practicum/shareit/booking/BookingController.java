@@ -51,8 +51,8 @@ public class BookingController {
                                             @RequestParam(value = "size", required = false, defaultValue = "20") Integer size) {
         log.warn("Обрабатываем запрос на получение списка всех бронирований пользователя: {}, статус бронирования: {}, " +
                 "значение from = {}, size = {}", userId, state, from, size);
-        if(from != null && size != null) {
-            if(from < 0 || size <= 0) {
+        if (from != null && size != null) {
+            if (from < 0 || size <= 0) {
                 throw new ValidationException(String.format("Значения from не может быть отрицательным (from =%d) и " +
                         "size равняться или быть меньше нуля (size =%d)", from, size));
             }
@@ -67,7 +67,7 @@ public class BookingController {
                                                    @RequestParam(value = "from", required = false, defaultValue = "0") Integer from,
                                                    @RequestParam(value = "size", required = false, defaultValue = "20") Integer size) {
         log.warn("Обрабатываем запрос на получение списка всех бронирований пользователя: {}, статус бронирования: {}", userId, state);
-        if(from != null && size != null) {
+        if (from != null && size != null) {
             if (from < 0 || size <= 0) {
                 throw new ValidationException(String.format("Значения from не может быть отрицательным (from =%d) и " +
                         "size равняться или быть меньше нуля (size =%d)", from, size));

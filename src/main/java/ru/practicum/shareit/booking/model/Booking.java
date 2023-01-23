@@ -13,6 +13,8 @@ import java.time.LocalDateTime;
 @Table(name = "bookings", schema = "public")
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class Booking {
 
     @Id

@@ -10,7 +10,7 @@ public interface UserService {
 
     UserDto update(long userId, UserDto userDto);
 
-    void deleteById(long userId);
+    boolean deleteById(long userId);
 
     List<UserDto> findAll();
 

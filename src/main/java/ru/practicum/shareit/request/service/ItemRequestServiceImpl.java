@@ -16,7 +16,6 @@ import ru.practicum.shareit.request.dto.*;
 import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
-import ru.practicum.shareit.user.service.UserService;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -29,10 +28,8 @@ import static java.util.stream.Collectors.toList;
 @Slf4j
 public class ItemRequestServiceImpl implements ItemRequestService {
 
-    private final UserService userService;
     private final UserRepository userRepository;
     private final ItemRequestRepository itemRequestRepository;
-
     private final ItemRepository itemRepository;
 
     @Transactional
@@ -47,7 +44,8 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
     @Override
     public List<ItemRequestsDtoResponse> findAll(long userId) { // список своих запросов
-        userService.findById(userId);
+        userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Пользователя с id = %d нет в базе.", userId)));
         log.info("Поиск запросов на вещь.");
 
         List<ItemRequest> itemRequests = itemRequestRepository.findAllByRequestorId(userId);
@@ -94,15 +92,16 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
     @Override
     public List<ItemRequestsDtoResponse> findAllBySize(long userId, Integer from, Integer size) {
-        userService.findById(userId);
+        userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Пользователя с id = %d нет в базе.", userId)));
         log.info("Поиск запросов на вещь, постранично.");
         Pageable sortedByCreatedDesc =
                 PageRequest.of(from, size, Sort.by("created").descending());
         Page<ItemRequest> itemRequests = itemRequestRepository.findAll(sortedByCreatedDesc);
 
         List<ItemRequest> itemRequestWithoutOwner = itemRequests.stream()
-                        .filter(itemRequest -> itemRequest.getRequestor().getId() != userId)
-                                .collect(toList());
+                .filter(itemRequest -> itemRequest.getRequestor().getId() != userId)
+                .collect(toList());
         log.info("СПИСОК ЗАПРОСОВ itemRequestWithoutOwner: " + itemRequestWithoutOwner.size());
 
         if (itemRequestWithoutOwner.size() == 0) {
@@ -146,12 +145,15 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
     @Override
     public ItemRequestsDtoResponse findById(long userId, long id) {
-        userService.findById(userId);
+        userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Пользователя с id = %d нет в базе.", userId)));
         log.info("Поиск запроса на вещь по id.");
-        var itemRequest = itemRequestRepository.findById(id)
+        ItemRequest itemRequest = itemRequestRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Запроса с id = %d нет в базе.", id)));
-        var items = itemRepository.getItemsByRequestId(id);
+        List<Item> items = itemRepository.getItemsByRequestId(id);
         return ItemRequestMapper.toItemRequestsDtoWithItem(ItemRequestMapper.toItemRequestsDtoResponse(itemRequest), items);
     }
+
+
 
 }

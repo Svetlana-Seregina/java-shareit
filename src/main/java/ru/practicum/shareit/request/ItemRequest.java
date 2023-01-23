@@ -11,6 +11,9 @@ import java.time.LocalDateTime;
 @Table(name = "requests", schema = "public")
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class ItemRequest {
 
     @Id

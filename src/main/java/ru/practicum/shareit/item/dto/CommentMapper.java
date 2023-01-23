@@ -10,16 +10,6 @@ import java.time.LocalDateTime;
 @UtilityClass
 public class CommentMapper {
 
-    public static CommentDto toCommentDto(Comment comment) {
-        return new CommentDto(
-                comment.getId(),
-                comment.getText(),
-                new CommentDto.Item(comment.getItem().getId(), comment.getItem().getName()),
-                new CommentDto.User(comment.getAuthor().getId(), comment.getAuthor().getName()),
-                comment.getCreated()
-        );
-    }
-
     public static Comment toComment(User user, Item item, CommentDtoCreate commentDtoCreate) {
         Comment comment = new Comment();
         comment.setText(commentDtoCreate.getText());

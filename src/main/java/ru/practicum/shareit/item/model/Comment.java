@@ -10,6 +10,8 @@ import java.time.LocalDateTime;
 @Table(name = "comments", schema = "public")
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class Comment {
 
     @Id

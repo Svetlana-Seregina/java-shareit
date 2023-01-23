@@ -44,7 +44,7 @@ public class ItemController {
                                         @RequestParam(value = "from", required = false, defaultValue = "0") Integer from,
                                         @RequestParam(value = "size", required = false, defaultValue = "20") Integer size) {
         log.info("Обрабатываем запрос на получение всех вещей от пользователя с id: {}", userId);
-        if(from != null && size != null) {
+        if (from != null && size != null) {
             if (from < 0 || size <= 0) {
                 throw new ValidationException(String.format("Значения from не может быть отрицательным (from =%d) и " +
                         "size равняться или быть меньше нуля (size =%d)", from, size));
@@ -62,7 +62,7 @@ public class ItemController {
         if (text.isBlank()) {
             return Collections.emptyList();
         }
-        if(from != null && size != null) {
+        if (from != null && size != null) {
             if (from < 0 || size <= 0) {
                 throw new ValidationException(String.format("Значения from не может быть отрицательным (from =%d) и " +
                         "size равняться или быть меньше нуля (size =%d)", from, size));

@@ -2,9 +2,7 @@ package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.model.Booking;
@@ -17,10 +15,8 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
-import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
-import ru.practicum.shareit.user.service.UserService;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -38,12 +34,12 @@ public class ItemServiceImpl implements ItemService {
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
     private final BookingRepository bookingRepository;
-    private final UserService userService;
 
     @Transactional
     @Override
     public ItemDtoResponse save(long userId, ItemDtoRequest itemDtoRequest) {
-        userService.findById(userId);
+        userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Пользователя с id = %d нет в базе.", userId)));
         log.info("Создание вещи.");
         Item item = itemRepository.save(ItemMapper.toItem(userId, itemDtoRequest));
         return ItemMapper.toItemDtoResponse(item);
@@ -127,13 +123,13 @@ public class ItemServiceImpl implements ItemService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Пользователя с id = %d нет в базе.", userId)));
         log.info("ПОЛЬЗОВАТЕЛЬ = {}", user.getName());
-        Pageable sortedByStartDesc =
-                PageRequest.of(from, size, Sort.by("id").descending());
-        List<Item> items = itemRepository.findAllByOwnerId(userId, sortedByStartDesc)
+        Pageable sortedByIdDesc =
+                PageRequest.of(0, size, Sort.by("id").descending());
+
+        List<Item> items = itemRepository.findAllByOwnerId(userId, sortedByIdDesc)
                 .stream()
                 .collect(toList());
         log.info("ВЕЩИ ПОЛЬЗОВАТЕЛЯ = {}", items.size());
-
 
         Map<Long, List<Booking>> lastBookingsByItemId =
                 bookingRepository.getAllByItem_InAndStartIsLessThanEqualOrEndIsLessThanEqualAndStatusIs(
@@ -193,9 +189,9 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<ItemDtoResponse> search(long userId, String text, Integer from, Integer size) {
         log.info("Поиск вещи по запросу пользователя: {}", text);
-        Pageable sortedByStartDesc =
-                PageRequest.of(from, size, Sort.by("id").ascending());
-        List<Item> itemList = itemRepository.search(text, sortedByStartDesc)
+        Pageable sortedByIdtDesc =
+                PageRequest.of(0, size, Sort.by("id").ascending());
+        List<Item> itemList = itemRepository.search(text, sortedByIdtDesc)
                 .stream()
                 .collect(toList());
         log.info("Количество вещей, найденных по запросу пользователя = {}", itemList.size());

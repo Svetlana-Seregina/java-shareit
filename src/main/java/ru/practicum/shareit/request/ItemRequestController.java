@@ -39,8 +39,8 @@ public class ItemRequestController {
     //GET /requests/all?from=0&size=0
     @GetMapping("/all")
     public List<ItemRequestsDtoResponse> findAllBySize(@RequestHeader("X-Sharer-User-Id") long userId,
-                                                      @RequestParam(value = "from", required = false, defaultValue = "0") Integer from,
-                                                      @RequestParam(value = "size", required = false, defaultValue = "20") Integer size) {
+                                                       @RequestParam(value = "from", required = false, defaultValue = "0") Integer from,
+                                                       @RequestParam(value = "size", required = false, defaultValue = "20") Integer size) {
         log.info("Обрабатываем запрос на получение запросов на вещь, от пользователя: {}, " +
                         "отображение может быть постраничное. Индекс первого элемента, начиная с 0 = {}," +
                         " количество элементов для отображения на странице = {}", userId, from, size);

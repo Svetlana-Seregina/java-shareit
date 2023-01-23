@@ -11,18 +11,6 @@ import java.util.List;
 @UtilityClass
 public class ItemMapper {
 
-    public static ItemDtoRequest toItemDto(Item item) {
-        return new ItemDtoRequest(
-                item.getId(),
-                item.getName(),
-                item.getDescription(),
-                item.getAvailable(),
-                item.getOwnerId(),
-                item.getRequestId()
-        );
-    }
-
-
     public static Item toItem(long userId, ItemDtoRequest itemDtoRequest) {
         Item item = new Item();
         item.setName(itemDtoRequest.getName());
@@ -72,6 +60,4 @@ public class ItemMapper {
         itemDtoBooking.setComments(comments);
         return itemDtoBooking;
     }
-
-
 }
