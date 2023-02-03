@@ -8,6 +8,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.practicum.shareit.exceptions.EntityNotFoundException;
 import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.service.ItemService;
 
@@ -81,7 +82,7 @@ class ItemControllerIT {
     }
 
     @Test
-    void saveItem_whenNotUserIdNotValid_thenThrowEntityNotFoundException() throws Exception {
+    void saveItem_whenNotUserIdNotValid_thenThrowThrowable() throws Exception {
         mockMvc.perform(post("/items")
                         .content(objectMapper.writeValueAsString(itemDtoRequestNew1))
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -116,6 +117,26 @@ class ItemControllerIT {
         assertEquals(objectMapper.writeValueAsString(itemDtoResponseUpdate1), result);
 
         verify(itemService).update(1L, 1L, itemDtoRequestUpdate1);
+    }
+
+    @SneakyThrows
+    @Test
+    void update_when() {
+        when(itemService.update(anyLong(), anyLong(), any())).thenThrow(EntityNotFoundException.class);
+
+        mockMvc.perform(patch("/items/{id}", 1L)
+                        .header("X-Sharer-User-Id", 10L)
+                        .content(objectMapper.writeValueAsString(itemDtoRequestUpdate1))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isNotFound())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        verify(itemService).update(10L, 1L, itemDtoRequestUpdate1);
     }
 
     @SneakyThrows

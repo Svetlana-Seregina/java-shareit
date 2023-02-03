@@ -29,7 +29,7 @@ public class ItemController {
     public ItemDtoResponse update(@RequestHeader("X-Sharer-User-Id") long userId,
                                   @PathVariable long id,
                                   @RequestBody ItemDtoRequest itemDtoRequest) {
-        log.warn("Обрабатываем запрос на обновление вещи: {} от пользователя: {}", itemDtoRequest, userId);
+        log.info("Обрабатываем запрос на обновление вещи: {} от пользователя: {}", itemDtoRequest, userId);
         return itemService.update(userId, id, itemDtoRequest);
     }
 
