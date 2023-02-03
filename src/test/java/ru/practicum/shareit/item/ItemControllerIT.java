@@ -8,6 +8,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.service.ItemService;
 
@@ -16,8 +17,7 @@ import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -33,6 +33,8 @@ class ItemControllerIT {
     private ItemService itemService;
 
     private final ItemDtoRequest itemDtoRequestNew1 = new ItemDtoRequest(1L, "Stairs", "New Stairs",
+            true, 1L, 0L);
+    private final ItemDtoRequest itemDtoRequestNew2 = new ItemDtoRequest(2L, null, "New Stairs",
             true, 1L, 0L);
     private final ItemDtoResponse itemDtoResponseNew1 = new ItemDtoResponse(1L, "Stairs", "New Stairs",
             true, 0L);
@@ -60,6 +62,39 @@ class ItemControllerIT {
         assertEquals(objectMapper.writeValueAsString(itemDtoResponseNew1), result);
 
         verify(itemService).save(1L, itemDtoRequestNew1);
+    }
+
+    @Test
+    void saveItem_whenNameNotValid_thenThrowMethodArgumentNotValidException() throws Exception {
+        mockMvc.perform(post("/items")
+                        .header("X-Sharer-User-Id", 1L)
+                        .content(objectMapper.writeValueAsString(itemDtoRequestNew2))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        verify(itemService, never()).save(1L, itemDtoRequestNew1);
+    }
+
+    @Test
+    void saveItem_whenNotUserIdNotValid_thenThrowEntityNotFoundException() throws Exception {
+        mockMvc.perform(post("/items")
+                        .content(objectMapper.writeValueAsString(itemDtoRequestNew1))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isInternalServerError())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        verify(itemService, never()).save(anyLong(), any());
     }
 
     @SneakyThrows

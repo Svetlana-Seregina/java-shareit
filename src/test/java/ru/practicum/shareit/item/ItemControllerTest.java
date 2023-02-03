@@ -36,6 +36,7 @@ class ItemControllerTest {
         assertEquals(itemDtoResponse, result);
     }
 
+
     @Test
     void update_whenInvoked_thenResponseWithUpdatedItem() {
         long userId = 1;
