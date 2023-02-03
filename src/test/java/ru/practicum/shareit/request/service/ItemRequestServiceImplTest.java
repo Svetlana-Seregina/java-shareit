@@ -17,6 +17,7 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -77,6 +78,39 @@ class ItemRequestServiceImplTest {
     }
 
     @Test
+    void findAll_whenItemRequestsAreEmpty_thenReturnEmptyList() {
+        User userRequestor = new User(1L, "Alex", "alex@yandex.ru");
+
+        when(userRepository.findById(anyLong())).thenReturn(Optional.of(userRequestor));
+        when(itemRequestRepository.findAllByRequestorId(anyLong())).thenReturn(Collections.emptyList());
+
+        List<ItemRequestsDtoResponse> itemRequestActual = itemRequestServiceImpl.findAll(1);
+
+        assertEquals(0, itemRequestActual.size());
+
+        verify(itemRequestRepository).findAllByRequestorId(anyLong());
+    }
+
+    @Test
+    void findAll_whenRequestDoesNotHaveItems_thenReturnRequestsWithoutItems() {
+        User userRequestor = new User(1L, "Alex", "alex@yandex.ru");
+        ItemRequest itemRequestExpected = new ItemRequest(0L, "Need 4 chairs", userRequestor, LocalDateTime.now());
+
+        List<ItemRequest> itemRequests = List.of(itemRequestExpected);
+
+        when(userRepository.findById(anyLong())).thenReturn(Optional.of(userRequestor));
+        when(itemRequestRepository.findAllByRequestorId(anyLong())).thenReturn(itemRequests);
+        when(itemRepository.findByRequestId_In(anyCollection())).thenReturn(Collections.emptyList());
+
+        List<ItemRequestsDtoResponse> itemRequestActual = itemRequestServiceImpl.findAll(1);
+
+        assertEquals(itemRequests.size(), itemRequestActual.size());
+
+        verify(itemRequestRepository).findAllByRequestorId(anyLong());
+    }
+
+
+    @Test
     void findAllBySize() {
         User userRequestor = new User(1L, "Alex", "alex@yandex.ru");
         User userItemOwner = new User(0L, "Alex", "alex@yandex.ru");
@@ -102,7 +136,83 @@ class ItemRequestServiceImplTest {
         assertEquals(itemRequests.size(), itemRequestActual.size());
 
         verify(itemRequestRepository).findAll(sortedByCreatedDesc);
+    }
 
+    @Test
+    void findAllBySize_whenRequestsWithItemsIsEmpty_thenReturnEmptyList() {
+        User userRequestor = new User(0L, "Alex", "alex@yandex.ru");
+        User userAnother = new User(2L, "Petr", "petr@yandex.ru");
+        ItemRequest itemRequestExpected = new ItemRequest(0L, "Need 4 chairs", userRequestor, LocalDateTime.now());
+
+        List<ItemRequest> itemRequests = List.of(itemRequestExpected);
+
+        Pageable sortedByCreatedDesc =
+                PageRequest.of(0, 20, Sort.by("created").descending());
+
+        Page<ItemRequest> page = new PageImpl<>(itemRequests);
+
+        when(userRepository.findById(anyLong())).thenReturn(Optional.of(userAnother));
+        when(userRepository.findById(anyLong())).thenReturn(Optional.of(userRequestor));
+        when(itemRequestRepository.findAll(sortedByCreatedDesc)).thenReturn(page);
+        when(itemRepository.findByRequestId_In(anyCollection())).thenReturn(Collections.emptyList());
+
+        List<ItemRequestsDtoResponse> itemRequestActual = itemRequestServiceImpl.findAllBySize(2L, 0, 20);
+
+        assertEquals(1, itemRequestActual.size());
+
+        verify(itemRequestRepository).findAll(sortedByCreatedDesc);
+    }
+
+    @Test
+    void findAllBySize_whenItemRequestDoesNotHaveAnyItem_thenReturnListWithoutItems() {
+        User userRequestor = new User(0L, "Alex", "alex@yandex.ru");
+        User userAnother = new User(2L, "Petr", "petr@yandex.ru");
+        ItemRequest itemRequestExpected = new ItemRequest(0L, "Need 4 chairs", userRequestor, LocalDateTime.now());
+        Item itemByRequest = new Item(
+                0L, "Chairs", "4 chairs", true, 1L, itemRequestExpected.getId());
+
+        List<Item> items = List.of(itemByRequest);
+
+        List<ItemRequest> itemRequests = List.of(itemRequestExpected);
+
+        Pageable sortedByCreatedDesc =
+                PageRequest.of(0, 20, Sort.by("created").descending());
+
+        Page<ItemRequest> page = new PageImpl<>(itemRequests);
+
+        when(userRepository.findById(anyLong())).thenReturn(Optional.of(userAnother));
+        when(userRepository.findById(anyLong())).thenReturn(Optional.of(userRequestor));
+        when(itemRequestRepository.findAll(sortedByCreatedDesc)).thenReturn(page);
+        when(itemRepository.findByRequestId_In(anyCollection())).thenReturn(items);
+
+        List<ItemRequestsDtoResponse> itemRequestActual = itemRequestServiceImpl.findAllBySize(2L, 0, 20);
+
+        assertEquals(1, itemRequestActual.size());
+
+        verify(itemRequestRepository).findAll(sortedByCreatedDesc);
+    }
+    @Test
+    void findAllBySize_whenFindByItemRequestsOwner_thenReturnEmptyList() {
+        User userRequestor = new User(0L, "Alex", "alex@yandex.ru");
+        User userAnother = new User(2L, "Petr", "petr@yandex.ru");
+        ItemRequest itemRequestExpected = new ItemRequest(0L, "Need 4 chairs", userRequestor, LocalDateTime.now());
+
+        List<ItemRequest> itemRequests = List.of(itemRequestExpected);
+
+        Pageable sortedByCreatedDesc =
+                PageRequest.of(0, 20, Sort.by("created").descending());
+
+        Page<ItemRequest> page = new PageImpl<>(itemRequests);
+
+        when(userRepository.findById(anyLong())).thenReturn(Optional.of(userAnother));
+        when(userRepository.findById(anyLong())).thenReturn(Optional.of(userRequestor));
+        when(itemRequestRepository.findAll(sortedByCreatedDesc)).thenReturn(page);
+
+        List<ItemRequestsDtoResponse> itemRequestActual = itemRequestServiceImpl.findAllBySize(0L, 0, 20);
+
+        assertEquals(0, itemRequestActual.size());
+
+        verify(itemRequestRepository).findAll(sortedByCreatedDesc);
     }
 
     @Test

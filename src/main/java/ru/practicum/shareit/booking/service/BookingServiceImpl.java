@@ -64,7 +64,7 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = bookingRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Бронирования с id = %d нет в базе.", id)));
         log.info("Найдено бронирование: {}", booking);
-        if (!(booking.getItem().getOwnerId().equals(userId)) && (booking.getBooker().getId().equals(userId))) {
+        if (!(booking.getItem().getOwnerId().equals(userId))) {
             throw new EntityNotFoundException("У вещи другой владелец: " + userId);
         } else if (booking.getStatus().equals(BookingState.APPROVED)) {
             throw new ValidationException("Статус уже изменен на: APPROVED.");
@@ -91,7 +91,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<BookingDtoResponse> findAll(long userId, String state, Long from, Integer size) {
         BookingState bookingState = validationUserAndState(userId, state);
-        List<Booking> allBookings;
+        List<Booking> allBookings = null;
         switch (bookingState) {
             case ALL:
                 allBookings = bookingRepository.getAllByBooker_Id(userId, sortByStartDesc)
@@ -119,8 +119,6 @@ public class BookingServiceImpl implements BookingService {
                 allBookings = bookingRepository
                         .getAllByBooker_IdAndStatusAndStartIsAfter(userId, BookingState.REJECTED, LocalDateTime.now());
                 break;
-            default:
-                throw new ValidationException("Unknown state: " + state);
         }
 
         return allBookings.stream()
@@ -131,7 +129,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<BookingDtoResponse> findAllByOwner(long userId, String state, Integer from, Integer size) {
         BookingState bookingState = validationUserAndState(userId, state);
-        List<Booking> allBookings;
+        List<Booking> allBookings = null;
         Pageable sortedByStartDesc =
                 PageRequest.of(from, size, sortByStartDesc);
         switch (bookingState) {
@@ -159,8 +157,6 @@ public class BookingServiceImpl implements BookingService {
                 allBookings = bookingRepository
                         .getAllByItem_OwnerIdAndStatusAndStartIsAfter(userId, BookingState.REJECTED, LocalDateTime.now());
                 break;
-            default:
-                throw new ValidationException("Unknown state: " + state);
         }
 
         log.info("Всего найдено вещей пользователя = {}", allBookings.size());
@@ -174,13 +170,11 @@ public class BookingServiceImpl implements BookingService {
     private BookingState validationUserAndState(Long userId, String state) {
         userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Пользователя с id = %d нет в базе.", userId)));
-        BookingState bookingState;
         try {
-            bookingState = BookingState.valueOf(state);
+            return BookingState.valueOf(state);
         } catch (IllegalArgumentException ex) {
             throw new ValidationException("Unknown state: " + state);
         }
-        return bookingState;
     }
 
 }

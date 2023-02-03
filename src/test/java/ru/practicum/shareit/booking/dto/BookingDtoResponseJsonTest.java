@@ -38,5 +38,4 @@ class BookingDtoResponseJsonTest {
         assertThat(result).extractingJsonPathNumberValue("$.item.id").isEqualTo(1);
         assertThat(result).extractingJsonPathStringValue("$.item.name").isEqualTo("Alex");
     }
-
 }

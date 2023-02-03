@@ -101,7 +101,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
         List<ItemRequest> itemRequestWithoutOwner = itemRequests.stream()
                 .filter(itemRequest -> itemRequest.getRequestor().getId() != userId)
-                .collect(toList());
+                .collect(Collectors.<ItemRequest>toList());
         log.info("СПИСОК ЗАПРОСОВ itemRequestWithoutOwner: " + itemRequestWithoutOwner.size());
 
         if (itemRequestWithoutOwner.size() == 0) {
@@ -153,7 +153,4 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         List<Item> items = itemRepository.getItemsByRequestId(id);
         return ItemRequestMapper.toItemRequestsDtoWithItem(ItemRequestMapper.toItemRequestsDtoResponse(itemRequest), items);
     }
-
-
-
 }
