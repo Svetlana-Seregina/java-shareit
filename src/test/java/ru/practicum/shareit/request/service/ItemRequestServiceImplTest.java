@@ -67,14 +67,14 @@ class ItemRequestServiceImplTest {
         List<ItemRequest> itemRequests = List.of(itemRequestExpected);
 
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(userRequestor));
-        when(itemRequestRepository.findAllByRequestorId(anyLong())).thenReturn(itemRequests);
+        when(itemRequestRepository.findAllByRequestorId(anyLong(), any())).thenReturn(itemRequests);
         when(itemRepository.findByRequestId_In(anyCollection())).thenReturn(items);
 
         List<ItemRequestsDtoResponse> itemRequestActual = itemRequestServiceImpl.findAll(1);
 
         assertEquals(itemRequests.size(), itemRequestActual.size());
 
-        verify(itemRequestRepository).findAllByRequestorId(anyLong());
+        verify(itemRequestRepository).findAllByRequestorId(anyLong(), any());
     }
 
     @Test
@@ -82,13 +82,13 @@ class ItemRequestServiceImplTest {
         User userRequestor = new User(1L, "Alex", "alex@yandex.ru");
 
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(userRequestor));
-        when(itemRequestRepository.findAllByRequestorId(anyLong())).thenReturn(Collections.emptyList());
+        when(itemRequestRepository.findAllByRequestorId(anyLong(), any())).thenReturn(Collections.emptyList());
 
         List<ItemRequestsDtoResponse> itemRequestActual = itemRequestServiceImpl.findAll(1);
 
         assertEquals(0, itemRequestActual.size());
 
-        verify(itemRequestRepository).findAllByRequestorId(anyLong());
+        verify(itemRequestRepository).findAllByRequestorId(anyLong(), any());
     }
 
     @Test
@@ -99,14 +99,14 @@ class ItemRequestServiceImplTest {
         List<ItemRequest> itemRequests = List.of(itemRequestExpected);
 
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(userRequestor));
-        when(itemRequestRepository.findAllByRequestorId(anyLong())).thenReturn(itemRequests);
+        when(itemRequestRepository.findAllByRequestorId(anyLong(), any())).thenReturn(itemRequests);
         when(itemRepository.findByRequestId_In(anyCollection())).thenReturn(Collections.emptyList());
 
         List<ItemRequestsDtoResponse> itemRequestActual = itemRequestServiceImpl.findAll(1);
 
         assertEquals(itemRequests.size(), itemRequestActual.size());
 
-        verify(itemRequestRepository).findAllByRequestorId(anyLong());
+        verify(itemRequestRepository).findAllByRequestorId(anyLong(), any());
     }
 
 

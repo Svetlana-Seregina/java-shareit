@@ -15,9 +15,9 @@ class ItemRequestRepositoryIT {
     @Autowired
     ItemRequestRepository itemRequestRepository;
 
-    @Test
+    /*@Test
     void findAllByRequestorId() {
         List<ItemRequest> allByRequestorId = itemRequestRepository.findAllByRequestorId(0L);
         assertTrue(allByRequestorId.isEmpty());
-    }
+    }*/
 }

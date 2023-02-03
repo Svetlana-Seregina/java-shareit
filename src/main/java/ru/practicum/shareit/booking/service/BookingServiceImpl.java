@@ -2,6 +2,7 @@ package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -22,6 +23,7 @@ import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -89,39 +91,37 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDtoResponse> findAll(long userId, String state, Long from, Integer size) {
+    public List<BookingDtoResponse> findAll(long userId, String state, Integer from, Integer size) {
         BookingState bookingState = validationUserAndState(userId, state);
+        Pageable sortedByStartDesc =
+                PageRequest.of(from / size, size, Sort.by("start").descending());
         List<Booking> allBookings = null;
         switch (bookingState) {
             case ALL:
-                allBookings = bookingRepository.getAllByBooker_Id(userId, sortByStartDesc)
-                        .stream()
-                        .skip(from)
-                        .limit(size)
-                        .collect(Collectors.toList());
+                allBookings = bookingRepository.getAllByBooker_Id(userId, sortedByStartDesc);
                 break;
             case FUTURE:
-                allBookings = bookingRepository.getAllByBooker_IdAndStartIsAfter(userId, LocalDateTime.now(), sortByStartDesc);
+                allBookings = bookingRepository.getAllByBooker_IdAndStartIsAfter(userId, LocalDateTime.now(), sortedByStartDesc);
                 break;
             case CURRENT:
                 allBookings = bookingRepository
-                        .getAllByBooker_IdAndStartBeforeAndEndAfter(userId, LocalDateTime.now(), LocalDateTime.now());
+                        .getAllByBooker_IdAndStartBeforeAndEndAfter(userId, LocalDateTime.now(), LocalDateTime.now(), sortedByStartDesc);
                 break;
             case PAST:
                 allBookings = bookingRepository
-                        .getAllByBooker_IdAndStartBeforeAndEndBefore(userId, LocalDateTime.now(), LocalDateTime.now());
+                        .getAllByBooker_IdAndStartBeforeAndEndBefore(userId, LocalDateTime.now(), LocalDateTime.now(), sortedByStartDesc);
                 break;
             case WAITING:
                 allBookings = bookingRepository
-                        .getAllByBooker_IdAndStatusAndStartIsAfter(userId, BookingState.WAITING, LocalDateTime.now());
+                        .getAllByBooker_IdAndStatusAndStartIsAfter(userId, BookingState.WAITING, LocalDateTime.now(), sortedByStartDesc);
                 break;
             case REJECTED:
                 allBookings = bookingRepository
-                        .getAllByBooker_IdAndStatusAndStartIsAfter(userId, BookingState.REJECTED, LocalDateTime.now());
+                        .getAllByBooker_IdAndStatusAndStartIsAfter(userId, BookingState.REJECTED, LocalDateTime.now(), sortedByStartDesc);
                 break;
         }
 
-        return allBookings.stream()
+        return Objects.requireNonNull(allBookings).stream()
                 .map(BookingMapper::toBookingDtoResponse)
                 .collect(Collectors.toList());
     }
@@ -131,35 +131,32 @@ public class BookingServiceImpl implements BookingService {
         BookingState bookingState = validationUserAndState(userId, state);
         List<Booking> allBookings = null;
         Pageable sortedByStartDesc =
-                PageRequest.of(from, size, sortByStartDesc);
+                PageRequest.of(from / size, size, sortByStartDesc);
         switch (bookingState) {
             case ALL:
-                allBookings = bookingRepository.getAllByItem_OwnerId(userId, sortedByStartDesc)
-                        .stream()
-                        .collect(Collectors.toList());
+                allBookings = bookingRepository.getAllByItem_OwnerId(userId, sortedByStartDesc);
                 break;
             case FUTURE:
-                allBookings = bookingRepository.getAllByItem_OwnerIdAndStartIsAfter(userId, LocalDateTime.now(), sortByStartDesc);
+                allBookings = bookingRepository.getAllByItem_OwnerIdAndStartIsAfter(userId, LocalDateTime.now(), sortedByStartDesc);
                 break;
             case CURRENT:
                 allBookings = bookingRepository
-                        .getAllByItem_OwnerIdAndStartBeforeAndEndAfter(userId, LocalDateTime.now(), LocalDateTime.now());
+                        .getAllByItem_OwnerIdAndStartBeforeAndEndAfter(userId, LocalDateTime.now(), LocalDateTime.now(), sortedByStartDesc);
                 break;
             case PAST:
                 allBookings = bookingRepository
-                        .getAllByItem_OwnerIdAndStartBeforeAndEndBefore(userId, LocalDateTime.now(), LocalDateTime.now());
+                        .getAllByItem_OwnerIdAndStartBeforeAndEndBefore(userId, LocalDateTime.now(), LocalDateTime.now(), sortedByStartDesc);
                 break;
             case WAITING:
                 allBookings = bookingRepository
-                        .getAllByItem_OwnerIdAndStatusAndStartIsAfter(userId, BookingState.WAITING, LocalDateTime.now());
+                        .getAllByItem_OwnerIdAndStatusAndStartIsAfter(userId, BookingState.WAITING, LocalDateTime.now(), sortedByStartDesc);
                 break;
             case REJECTED:
                 allBookings = bookingRepository
-                        .getAllByItem_OwnerIdAndStatusAndStartIsAfter(userId, BookingState.REJECTED, LocalDateTime.now());
+                        .getAllByItem_OwnerIdAndStatusAndStartIsAfter(userId, BookingState.REJECTED, LocalDateTime.now(), sortedByStartDesc);
                 break;
         }
 
-        log.info("Всего найдено вещей пользователя = {}", allBookings.size());
         log.info("Найдены вещи пользователя: {}", allBookings);
 
         return allBookings.stream()

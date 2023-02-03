@@ -18,8 +18,7 @@ import java.time.LocalDateTime;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -80,6 +79,18 @@ class ItemRequestControllerIT {
                 .andExpect(status().isOk());
 
         verify(itemRequestService).findAllBySize(1L, 0, 20);
+    }
+
+    @SneakyThrows
+    @Test
+    void findAllBySize_whenFromOrSizeIsIncorrect_thenThrowConstraintViolationException() {
+        mockMvc.perform(get("/requests/all")
+                        .header("X-Sharer-User-Id", 1L)
+                        .param("size", "-2"))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+
+        verify(itemRequestService, never()).findAllBySize(1L, 0, -2);
     }
 
     @SneakyThrows

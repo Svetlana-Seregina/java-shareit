@@ -13,25 +13,26 @@ import java.util.List;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
 
-    List<Booking> getAllByBooker_Id(Long userId, Sort sort);
+    //List<Booking> getAllByBooker_Id(Long userId, Sort sort);
+    List<Booking> getAllByBooker_Id(Long userId, Pageable pageable);
 
-    List<Booking> getAllByBooker_IdAndStartIsAfter(Long userId, LocalDateTime localDateTime, Sort sort);
+    List<Booking> getAllByBooker_IdAndStartIsAfter(Long userId, LocalDateTime localDateTime, Pageable pageable);
 
-    List<Booking> getAllByBooker_IdAndStatusAndStartIsAfter(Long userId, BookingState state, LocalDateTime localDateTime);
+    List<Booking> getAllByBooker_IdAndStatusAndStartIsAfter(Long userId, BookingState state, LocalDateTime localDateTime, Pageable pageable);
 
-    List<Booking> getAllByBooker_IdAndStartBeforeAndEndAfter(Long userId, LocalDateTime ldt1, LocalDateTime ltd2);
+    List<Booking> getAllByBooker_IdAndStartBeforeAndEndAfter(Long userId, LocalDateTime ldt1, LocalDateTime ltd2, Pageable pageable);
 
-    List<Booking> getAllByBooker_IdAndStartBeforeAndEndBefore(Long userId, LocalDateTime ldt1, LocalDateTime ldt2);
+    List<Booking> getAllByBooker_IdAndStartBeforeAndEndBefore(Long userId, LocalDateTime ldt1, LocalDateTime ldt2, Pageable pageable);
 
-    List<Booking> getAllByItem_OwnerIdAndStartBeforeAndEndAfter(Long userId, LocalDateTime ldt1, LocalDateTime ldt2);
+    List<Booking> getAllByItem_OwnerIdAndStartBeforeAndEndAfter(Long userId, LocalDateTime ldt1, LocalDateTime ldt2, Pageable pageable);
 
-    List<Booking> getAllByItem_OwnerIdAndStartBeforeAndEndBefore(Long userId, LocalDateTime ldt1, LocalDateTime ldt2);
+    List<Booking> getAllByItem_OwnerIdAndStartBeforeAndEndBefore(Long userId, LocalDateTime ldt1, LocalDateTime ldt2, Pageable pageable);
 
-    Page<Booking> getAllByItem_OwnerId(Long userId, Pageable pageable);
+    List<Booking> getAllByItem_OwnerId(Long userId, Pageable pageable);
 
-    List<Booking> getAllByItem_OwnerIdAndStartIsAfter(Long userId, LocalDateTime localDateTime, Sort sort);
+    List<Booking> getAllByItem_OwnerIdAndStartIsAfter(Long userId, LocalDateTime localDateTime, Pageable pageable);
 
-    List<Booking> getAllByItem_OwnerIdAndStatusAndStartIsAfter(Long id, BookingState state, LocalDateTime localDateTime);
+    List<Booking> getAllByItem_OwnerIdAndStatusAndStartIsAfter(Long id, BookingState state, LocalDateTime localDateTime, Pageable pageable);
 
     List<Booking> getAllByItem_IdAndStartIsLessThanEqualOrEndIsLessThanEqualAndStatusIs(
             Long id, LocalDateTime ldt1, LocalDateTime ldt2, BookingState bs);

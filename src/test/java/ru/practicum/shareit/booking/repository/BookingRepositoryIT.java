@@ -17,7 +17,6 @@ import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -35,6 +34,7 @@ class BookingRepositoryIT {
     private User userItemOwner;
     private Item item;
     private Booking booking;
+    private Pageable sortedByStartDesc;
 
     @BeforeEach
     void init() {
@@ -43,6 +43,7 @@ class BookingRepositoryIT {
         item = itemRepository.save(new Item(null, "Stairs", "New stairs", true, userItemOwner.getId(), null));
         booking = bookingRepository.save(new Booking(
                 null, LocalDateTime.now().plusDays(2), LocalDateTime.now().plusDays(4), item, userBooker, BookingState.WAITING));
+        sortedByStartDesc = PageRequest.of(0, 20, Sort.by(Sort.Direction.DESC, "start"));
     }
 
     @AfterEach
@@ -55,14 +56,14 @@ class BookingRepositoryIT {
     @Test
     void getAllByBooker_Id() {
         List<Booking> allByBookerId =
-                bookingRepository.getAllByBooker_Id(0L, Sort.by(Sort.Direction.DESC, "start"));
+                bookingRepository.getAllByBooker_Id(0L, sortedByStartDesc);
         assertTrue(allByBookerId.isEmpty());
     }
 
     @Test
     void getAllByBooker_IdAndStartIsAfter() {
         List<Booking> bookings = bookingRepository.getAllByBooker_IdAndStartIsAfter(
-                userBooker.getId(), LocalDateTime.now(), Sort.by(Sort.Direction.DESC, "start"));
+                userBooker.getId(), LocalDateTime.now(), sortedByStartDesc);
 
         assertEquals(booking.getStatus(), bookings.get(0).getStatus());
         assertTrue(bookings.get(0).getStart().isAfter(LocalDateTime.now()));
@@ -71,7 +72,7 @@ class BookingRepositoryIT {
     @Test
     void getAllByBooker_IdAndStatusAndStartIsAfter() {
         List<Booking> bookings = bookingRepository.getAllByBooker_IdAndStartIsAfter(
-                userBooker.getId(), LocalDateTime.now(), Sort.by(Sort.Direction.DESC, "start"));
+                userBooker.getId(), LocalDateTime.now(), sortedByStartDesc);
 
         assertEquals(booking.getStart(), bookings.get(0).getStart());
         assertTrue(bookings.get(0).getStart().isAfter(LocalDateTime.now()));
@@ -80,7 +81,7 @@ class BookingRepositoryIT {
     @Test
     void getAllByBooker_IdAndStartBeforeAndEndAfter() {
         List<Booking> bookings = bookingRepository.getAllByBooker_IdAndStartBeforeAndEndAfter(
-                userBooker.getId(), LocalDateTime.now(), LocalDateTime.now());
+                userBooker.getId(), LocalDateTime.now(), LocalDateTime.now(), sortedByStartDesc);
 
         assertTrue(bookings.isEmpty());
     }
@@ -88,7 +89,7 @@ class BookingRepositoryIT {
     @Test
     void getAllByBooker_IdAndStartBeforeAndEndBefore() {
         List<Booking> bookings = bookingRepository.getAllByBooker_IdAndStartBeforeAndEndBefore(
-                userBooker.getId(), LocalDateTime.now(), LocalDateTime.now());
+                userBooker.getId(), LocalDateTime.now(), LocalDateTime.now(), sortedByStartDesc);
 
         assertTrue(bookings.isEmpty());
     }
@@ -96,7 +97,7 @@ class BookingRepositoryIT {
     @Test
     void getAllByItem_OwnerIdAndStartBeforeAndEndAfter() {
         List<Booking> bookings = bookingRepository.getAllByItem_OwnerIdAndStartBeforeAndEndAfter(
-                userItemOwner.getId(), LocalDateTime.now(), LocalDateTime.now());
+                userItemOwner.getId(), LocalDateTime.now(), LocalDateTime.now(), sortedByStartDesc);
 
         assertTrue(bookings.isEmpty());
     }
@@ -104,20 +105,15 @@ class BookingRepositoryIT {
     @Test
     void getAllByItem_OwnerIdAndStartBeforeAndEndBefore() {
         List<Booking> bookings = bookingRepository.getAllByItem_OwnerIdAndStartBeforeAndEndBefore(
-                userItemOwner.getId(), LocalDateTime.now(), LocalDateTime.now());
+                userItemOwner.getId(), LocalDateTime.now(), LocalDateTime.now(), sortedByStartDesc);
 
         assertTrue(bookings.isEmpty());
     }
 
     @Test
     void getAllByItem_OwnerId() {
-        Pageable sortedByStartDesc =
-                PageRequest.of(0, 20, Sort.by(Sort.Direction.DESC, "start"));
-
         List<Booking> bookings = bookingRepository.getAllByItem_OwnerId(
-                        userItemOwner.getId(), sortedByStartDesc)
-                .stream()
-                .collect(Collectors.toList());
+                userItemOwner.getId(), sortedByStartDesc);
 
         assertEquals(1, bookings.size());
     }
@@ -125,7 +121,7 @@ class BookingRepositoryIT {
     @Test
     void getAllByItem_OwnerIdAndStartIsAfter() {
         List<Booking> bookings = bookingRepository.getAllByItem_OwnerIdAndStartIsAfter(
-                userItemOwner.getId(), LocalDateTime.now(), Sort.by(Sort.Direction.DESC, "start"));
+                userItemOwner.getId(), LocalDateTime.now(), sortedByStartDesc);
 
         assertEquals(1, bookings.size());
     }
@@ -133,7 +129,7 @@ class BookingRepositoryIT {
     @Test
     void getAllByItem_OwnerIdAndStatusAndStartIsAfter() {
         List<Booking> bookings = bookingRepository.getAllByItem_OwnerIdAndStatusAndStartIsAfter(
-                userItemOwner.getId(), BookingState.WAITING, LocalDateTime.now());
+                userItemOwner.getId(), BookingState.WAITING, LocalDateTime.now(), sortedByStartDesc);
 
         assertEquals(1, bookings.size());
     }

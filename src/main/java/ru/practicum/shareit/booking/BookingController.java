@@ -2,18 +2,22 @@ package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDtoRequest;
 import ru.practicum.shareit.booking.dto.BookingDtoResponse;
 import ru.practicum.shareit.booking.service.BookingService;
-import ru.practicum.shareit.exceptions.ValidationException;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @RestController
 @RequestMapping("/bookings")
 @RequiredArgsConstructor
+@Validated
 @Slf4j
 public class BookingController {
 
@@ -47,16 +51,10 @@ public class BookingController {
     @GetMapping
     public List<BookingDtoResponse> findAll(@RequestHeader("X-Sharer-User-Id") long userId,
                                             @RequestParam(value = "state", defaultValue = "ALL") String state,
-                                            @RequestParam(value = "from", required = false, defaultValue = "0") Long from,
-                                            @RequestParam(value = "size", required = false, defaultValue = "20") Integer size) {
+                                            @RequestParam(value = "from", required = false, defaultValue = "0") @PositiveOrZero Integer from,
+                                            @RequestParam(value = "size", required = false, defaultValue = "20") @Positive Integer size) {
         log.warn("Обрабатываем запрос на получение списка всех бронирований пользователя: {}, статус бронирования: {}, " +
                 "значение from = {}, size = {}", userId, state, from, size);
-        if (from != null && size != null) {
-            if (from < 0 || size <= 0) {
-                throw new ValidationException(String.format("Значения from не может быть отрицательным (from =%d) и " +
-                        "size равняться или быть меньше нуля (size =%d)", from, size));
-            }
-        }
         return bookingService.findAll(userId, state, from, size);
     }
 
@@ -64,15 +62,9 @@ public class BookingController {
     @GetMapping("/owner")
     public List<BookingDtoResponse> findAllByOwner(@RequestHeader("X-Sharer-User-Id") long userId,
                                                    @RequestParam(value = "state", defaultValue = "ALL") String state,
-                                                   @RequestParam(value = "from", required = false, defaultValue = "0") Integer from,
-                                                   @RequestParam(value = "size", required = false, defaultValue = "20") Integer size) {
+                                                   @RequestParam(value = "from", required = false, defaultValue = "0") @PositiveOrZero Integer from,
+                                                   @RequestParam(value = "size", required = false, defaultValue = "20") @Positive Integer size) {
         log.warn("Обрабатываем запрос на получение списка всех бронирований пользователя: {}, статус бронирования: {}", userId, state);
-        if (from != null && size != null) {
-            if (from < 0 || size <= 0) {
-                throw new ValidationException(String.format("Значения from не может быть отрицательным (from =%d) и " +
-                        "size равняться или быть меньше нуля (size =%d)", from, size));
-            }
-        }
         return bookingService.findAllByOwner(userId, state, from, size);
     }
 

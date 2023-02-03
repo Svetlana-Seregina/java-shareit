@@ -48,23 +48,21 @@ public class ItemRequestServiceImpl implements ItemRequestService {
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Пользователя с id = %d нет в базе.", userId)));
         log.info("Поиск запросов на вещь.");
 
-        List<ItemRequest> itemRequests = itemRequestRepository.findAllByRequestorId(userId);
-        log.info("РАЗМЕР СПИСКА: itemRequests.size =  " + itemRequests.size());
+        Sort sort = Sort.by("created").descending();
+        List<ItemRequest> itemRequests = itemRequestRepository.findAllByRequestorId(userId, sort);
+        log.info("РАЗМЕР СПИСКА: itemRequests.size =  {}", itemRequests.size());
 
         if (itemRequests.size() == 0) {
             return Collections.emptyList();
         }
 
-        List<Long> itemRequestsId = new ArrayList<>();
-        for (ItemRequest itemRequest : itemRequests) {
-            itemRequestsId.add(itemRequest.getId());
-        }
-        log.info("СПИСОК: itemRequestsId.size =  " + itemRequestsId.size());
+        List<Long> itemRequestsId = itemRequests.stream().map(ItemRequest::getId).collect(Collectors.toList());
+        log.info("СПИСОК: itemRequestsId.size = {}", itemRequestsId.size());
 
         List<Item> items = itemRepository.findByRequestId_In(itemRequestsId);
-        log.info("СПИСОК: items.size =  " + items.size());
+        log.info("СПИСОК: items.size = {}", items.size());
 
-        if (items.size() == 0) {
+        if (items.isEmpty()) {
             List<ItemRequestsDtoResponse> itemRequestDto = itemRequests.stream()
                     .map(ItemRequestMapper::toItemRequestsDtoResponse)
                     .collect(toList());
@@ -78,15 +76,14 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         List<ItemRequestsDtoResponse> requestsDtoResponses = itemRequests.stream()
                 .map(ItemRequestMapper::toItemRequestsDtoResponse)
                 .map(itemRequestsDtoResponse -> {
-                    List<Item> allItems = itemsByRequest.get(itemRequestsDtoResponse.getId());
-                    if (allItems != null) {
+                    List<Item> allItems = itemsByRequest.getOrDefault(itemRequestsDtoResponse.getId(), List.of());
+                    if (!allItems.isEmpty()) {
                         return ItemRequestMapper.toItemRequestsDtoWithItem(itemRequestsDtoResponse, allItems);
                     }
                     return itemRequestsDtoResponse;
                 })
-                .sorted(Comparator.comparing(ItemRequestsDtoResponse::getCreated))
                 .collect(toList());
-        log.info("СПИСОК: requestsDtoResponses.size =  " + requestsDtoResponses.size());
+        log.info("СПИСОК: requestsDtoResponses.size = {}", requestsDtoResponses.size());
         return ItemRequestMapper.toItemRequestsDtoArray(requestsDtoResponses);
     }
 
@@ -102,22 +99,19 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         List<ItemRequest> itemRequestWithoutOwner = itemRequests.stream()
                 .filter(itemRequest -> itemRequest.getRequestor().getId() != userId)
                 .collect(Collectors.<ItemRequest>toList());
-        log.info("СПИСОК ЗАПРОСОВ itemRequestWithoutOwner: " + itemRequestWithoutOwner.size());
+        log.info("СПИСОК ЗАПРОСОВ itemRequestWithoutOwner: {}", itemRequestWithoutOwner.size());
 
         if (itemRequestWithoutOwner.size() == 0) {
             return Collections.emptyList();
         }
 
-        List<Long> itemRequestsId = new ArrayList<>();
-        for (ItemRequest itemRequest : itemRequestWithoutOwner) {
-            itemRequestsId.add(itemRequest.getId());
-        }
-        log.info("СПИСОК: itemRequestsId.size =  " + itemRequestsId.size());
+        List<Long> itemRequestsId = itemRequests.stream().map(ItemRequest::getId).collect(Collectors.toList());
+        log.info("СПИСОК: itemRequestsId.size = {}", itemRequestsId.size());
 
         List<Item> items = itemRepository.findByRequestId_In(itemRequestsId);
-        log.info("СПИСОК: items.size =  " + items.size());
+        log.info("СПИСОК: items.size = {}", items.size());
 
-        if (items.size() == 0) {
+        if (items.isEmpty()) {
             List<ItemRequestsDtoResponse> itemRequestDto = itemRequestWithoutOwner.stream()
                     .map(ItemRequestMapper::toItemRequestsDtoResponse)
                     .collect(toList());
@@ -131,15 +125,14 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         List<ItemRequestsDtoResponse> requestsDtoResponses = itemRequestWithoutOwner.stream()
                 .map(ItemRequestMapper::toItemRequestsDtoResponse)
                 .map(itemRequestsDtoResponse -> {
-                    List<Item> allItems = itemsByRequest.get(itemRequestsDtoResponse.getId());
-                    if (allItems != null) {
+                    List<Item> allItems = itemsByRequest.getOrDefault(itemRequestsDtoResponse.getId(), List.of());
+                    if (!allItems.isEmpty()) {
                         return ItemRequestMapper.toItemRequestsDtoWithItem(itemRequestsDtoResponse, allItems);
                     }
                     return itemRequestsDtoResponse;
                 })
-                .sorted(Comparator.comparing(ItemRequestsDtoResponse::getCreated))
                 .collect(toList());
-        log.info("СПИСОК: requestsDtoResponses.size =  " + requestsDtoResponses.size());
+        log.info("СПИСОК: requestsDtoResponses.size = {}", requestsDtoResponses.size());
         return ItemRequestMapper.toItemRequestsDtoArray(requestsDtoResponses);
     }
 

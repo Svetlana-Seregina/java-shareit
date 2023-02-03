@@ -20,8 +20,7 @@ import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -113,7 +112,20 @@ class BookingControllerIT {
                 .andDo(print())
                 .andExpect(status().isOk());
 
-        verify(bookingService).findAll(1L, "FUTURE", 0L, 20);
+        verify(bookingService).findAll(1L, "FUTURE", 0, 20);
+    }
+
+    @SneakyThrows
+    @Test
+    void findAll_whenFromOrSizeIsIncorrect_thenThrowConstraintViolationException() {
+        mockMvc.perform(get("/bookings")
+                        .header("X-Sharer-User-Id", 1L)
+                        .param("state", "FUTURE")
+                        .param("from", "-1"))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+
+        verify(bookingService, never()).findAll(1L, "FUTURE", -1, 20);
     }
 
     @SneakyThrows
@@ -125,6 +137,19 @@ class BookingControllerIT {
                 .andDo(print())
                 .andExpect(status().isOk());
 
-        verify(bookingService).findAll(1L, "PAST", 0L, 20);
+        verify(bookingService).findAll(1L, "PAST", 0, 20);
+    }
+
+    @SneakyThrows
+    @Test
+    void findAllByOwner_whenFromOrSizeIsIncorrect_thenThrowConstraintViolationException() {
+        mockMvc.perform(get("/bookings")
+                        .header("X-Sharer-User-Id", 1L)
+                        .param("state", "PAST")
+                        .param("size", "0"))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+
+        verify(bookingService, never()).findAll(1L, "PAST", 0, 0);
     }
 }

@@ -190,7 +190,7 @@ class BookingServiceImplTest {
         when(userRepository.findById(userBooker.getId())).thenReturn(Optional.of(userBooker));
         when(bookingRepository.getAllByBooker_Id(anyLong(), any())).thenReturn(bookings);
 
-        List<BookingDtoResponse> actualAllBookings = bookingServiceImpl.findAll(userBooker.getId(), "ALL", 0L, 20);
+        List<BookingDtoResponse> actualAllBookings = bookingServiceImpl.findAll(userBooker.getId(), "ALL", 0, 20);
 
         assertEquals(bookings.size(), actualAllBookings.size());
 
@@ -211,7 +211,7 @@ class BookingServiceImplTest {
         when(bookingRepository.getAllByBooker_IdAndStartIsAfter(
                 anyLong(), any(), any())).thenReturn(bookings);
 
-        List<BookingDtoResponse> actualAllBookings = bookingServiceImpl.findAll(1L, "FUTURE", 0L, 20);
+        List<BookingDtoResponse> actualAllBookings = bookingServiceImpl.findAll(1L, "FUTURE", 0, 20);
 
         assertEquals(bookings.size(), actualAllBookings.size());
 
@@ -231,13 +231,13 @@ class BookingServiceImplTest {
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(userBooker));
         when(bookingRepository.getAllByBooker_IdAndStartBeforeAndEndAfter(
-                anyLong(), any(), any())).thenReturn(bookings);
+                anyLong(), any(), any(), any())).thenReturn(bookings);
 
-        List<BookingDtoResponse> actualAllBookings = bookingServiceImpl.findAll(1L, "CURRENT", 0L, 20);
+        List<BookingDtoResponse> actualAllBookings = bookingServiceImpl.findAll(1L, "CURRENT", 0, 20);
 
         assertEquals(bookings.size(), actualAllBookings.size());
 
-        verify(bookingRepository).getAllByBooker_IdAndStartBeforeAndEndAfter(anyLong(), any(), any());
+        verify(bookingRepository).getAllByBooker_IdAndStartBeforeAndEndAfter(anyLong(), any(), any(), any());
     }
 
     @Test
@@ -251,13 +251,13 @@ class BookingServiceImplTest {
         List<Booking> bookings = List.of(booking);
 
         when(userRepository.findById(userBooker.getId())).thenReturn(Optional.of(userBooker));
-        when(bookingRepository.getAllByBooker_IdAndStartBeforeAndEndBefore(anyLong(), any(), any())).thenReturn(bookings);
+        when(bookingRepository.getAllByBooker_IdAndStartBeforeAndEndBefore(anyLong(), any(), any(), any())).thenReturn(bookings);
 
-        List<BookingDtoResponse> actualAllBookings = bookingServiceImpl.findAll(1L, "PAST", 0L, 20);
+        List<BookingDtoResponse> actualAllBookings = bookingServiceImpl.findAll(1L, "PAST", 0, 20);
 
         assertEquals(bookings.size(), actualAllBookings.size());
 
-        verify(bookingRepository).getAllByBooker_IdAndStartBeforeAndEndBefore(anyLong(), any(), any());
+        verify(bookingRepository).getAllByBooker_IdAndStartBeforeAndEndBefore(anyLong(), any(), any(), any());
     }
 
     @Test
@@ -271,13 +271,13 @@ class BookingServiceImplTest {
         List<Booking> bookings = List.of(booking);
 
         when(userRepository.findById(userBooker.getId())).thenReturn(Optional.of(userBooker));
-        when(bookingRepository.getAllByBooker_IdAndStatusAndStartIsAfter(anyLong(), any(), any())).thenReturn(bookings);
+        when(bookingRepository.getAllByBooker_IdAndStatusAndStartIsAfter(anyLong(), any(), any(), any())).thenReturn(bookings);
 
-        List<BookingDtoResponse> actualAllBookings = bookingServiceImpl.findAll(1L, "WAITING", 0L, 20);
+        List<BookingDtoResponse> actualAllBookings = bookingServiceImpl.findAll(1L, "WAITING", 0, 20);
 
         assertEquals(bookings.size(), actualAllBookings.size());
 
-        verify(bookingRepository).getAllByBooker_IdAndStatusAndStartIsAfter(anyLong(), any(), any());
+        verify(bookingRepository).getAllByBooker_IdAndStatusAndStartIsAfter(anyLong(), any(), any(), any());
     }
 
     @Test
@@ -291,13 +291,13 @@ class BookingServiceImplTest {
         List<Booking> bookings = List.of(booking);
 
         when(userRepository.findById(userBooker.getId())).thenReturn(Optional.of(userBooker));
-        when(bookingRepository.getAllByBooker_IdAndStatusAndStartIsAfter(anyLong(), any(), any())).thenReturn(bookings);
+        when(bookingRepository.getAllByBooker_IdAndStatusAndStartIsAfter(anyLong(), any(), any(), any())).thenReturn(bookings);
 
-        List<BookingDtoResponse> actualAllBookings = bookingServiceImpl.findAll(1L, "REJECTED", 0L, 20);
+        List<BookingDtoResponse> actualAllBookings = bookingServiceImpl.findAll(1L, "REJECTED", 0, 20);
 
         assertEquals(bookings.size(), actualAllBookings.size());
 
-        verify(bookingRepository).getAllByBooker_IdAndStatusAndStartIsAfter(anyLong(), any(), any());
+        verify(bookingRepository).getAllByBooker_IdAndStatusAndStartIsAfter(anyLong(), any(), any(), any());
     }
 
     @Test
@@ -307,7 +307,7 @@ class BookingServiceImplTest {
         when(userRepository.findById(userBooker.getId())).thenReturn(Optional.of(userBooker));
 
         assertThrows(ValidationException.class,
-                () -> bookingServiceImpl.findAll(1L, "Unknown", 0L, 20));
+                () -> bookingServiceImpl.findAll(1L, "Unknown", 0, 20));
     }
 
     @Test
@@ -319,14 +319,13 @@ class BookingServiceImplTest {
         Booking booking = new Booking(0L, LocalDateTime.now().plusDays(2), LocalDateTime.now().plusDays(4),
                 item, userBooker, BookingState.ALL);
         List<Booking> bookings = List.of(booking);
-        Page<Booking> bookingPage = new PageImpl<>(bookings);
 
         Sort sortByStartDesc = Sort.by(Sort.Direction.DESC, "start");
         Pageable sortedByStartDesc =
                 PageRequest.of(0, 20, sortByStartDesc);
 
         when(userRepository.findById(userOwner.getId())).thenReturn(Optional.of(userOwner));
-        when(bookingRepository.getAllByItem_OwnerId(userOwner.getId(), sortedByStartDesc)).thenReturn(bookingPage);
+        when(bookingRepository.getAllByItem_OwnerId(userOwner.getId(), sortedByStartDesc)).thenReturn(bookings);
 
         List<BookingDtoResponse> actualAllBookings = bookingServiceImpl.findAllByOwner(userOwner.getId(), "ALL", 0, 20);
 
@@ -366,13 +365,13 @@ class BookingServiceImplTest {
         List<Booking> bookings = List.of(booking);
 
         when(userRepository.findById(userOwner.getId())).thenReturn(Optional.of(userOwner));
-        when(bookingRepository.getAllByItem_OwnerIdAndStartBeforeAndEndAfter(anyLong(), any(), any())).thenReturn(bookings);
+        when(bookingRepository.getAllByItem_OwnerIdAndStartBeforeAndEndAfter(anyLong(), any(), any(), any())).thenReturn(bookings);
 
         List<BookingDtoResponse> actualAllBookings = bookingServiceImpl.findAllByOwner(userOwner.getId(), "CURRENT", 0, 20);
 
         assertEquals(bookings.size(), actualAllBookings.size());
 
-        verify(bookingRepository).getAllByItem_OwnerIdAndStartBeforeAndEndAfter(anyLong(), any(), any());
+        verify(bookingRepository).getAllByItem_OwnerIdAndStartBeforeAndEndAfter(anyLong(), any(), any(), any());
     }
 
     @Test
@@ -386,13 +385,13 @@ class BookingServiceImplTest {
         List<Booking> bookings = List.of(booking);
 
         when(userRepository.findById(userOwner.getId())).thenReturn(Optional.of(userOwner));
-        when(bookingRepository.getAllByItem_OwnerIdAndStartBeforeAndEndBefore(anyLong(), any(), any())).thenReturn(bookings);
+        when(bookingRepository.getAllByItem_OwnerIdAndStartBeforeAndEndBefore(anyLong(), any(), any(), any())).thenReturn(bookings);
 
         List<BookingDtoResponse> actualAllBookings = bookingServiceImpl.findAllByOwner(userOwner.getId(), "PAST", 0, 20);
 
         assertEquals(bookings.size(), actualAllBookings.size());
 
-        verify(bookingRepository).getAllByItem_OwnerIdAndStartBeforeAndEndBefore(anyLong(), any(), any());
+        verify(bookingRepository).getAllByItem_OwnerIdAndStartBeforeAndEndBefore(anyLong(), any(), any(), any());
     }
 
     @Test
@@ -406,13 +405,13 @@ class BookingServiceImplTest {
         List<Booking> bookings = List.of(booking);
 
         when(userRepository.findById(userOwner.getId())).thenReturn(Optional.of(userOwner));
-        when(bookingRepository.getAllByItem_OwnerIdAndStatusAndStartIsAfter(anyLong(), any(), any())).thenReturn(bookings);
+        when(bookingRepository.getAllByItem_OwnerIdAndStatusAndStartIsAfter(anyLong(), any(), any(), any())).thenReturn(bookings);
 
         List<BookingDtoResponse> actualAllBookings = bookingServiceImpl.findAllByOwner(userOwner.getId(), "WAITING", 0, 20);
 
         assertEquals(bookings.size(), actualAllBookings.size());
 
-        verify(bookingRepository).getAllByItem_OwnerIdAndStatusAndStartIsAfter(anyLong(), any(), any());
+        verify(bookingRepository).getAllByItem_OwnerIdAndStatusAndStartIsAfter(anyLong(), any(), any(), any());
     }
 
     @Test
@@ -426,13 +425,13 @@ class BookingServiceImplTest {
         List<Booking> bookings = List.of(booking);
 
         when(userRepository.findById(userOwner.getId())).thenReturn(Optional.of(userOwner));
-        when(bookingRepository.getAllByItem_OwnerIdAndStatusAndStartIsAfter(anyLong(), any(), any())).thenReturn(bookings);
+        when(bookingRepository.getAllByItem_OwnerIdAndStatusAndStartIsAfter(anyLong(), any(), any(), any())).thenReturn(bookings);
 
         List<BookingDtoResponse> actualAllBookings = bookingServiceImpl.findAllByOwner(userOwner.getId(), "REJECTED", 0, 20);
 
         assertEquals(bookings.size(), actualAllBookings.size());
 
-        verify(bookingRepository).getAllByItem_OwnerIdAndStatusAndStartIsAfter(anyLong(), any(), any());
+        verify(bookingRepository).getAllByItem_OwnerIdAndStatusAndStartIsAfter(anyLong(), any(), any(), any());
     }
 
     @Test

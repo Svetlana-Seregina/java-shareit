@@ -2,19 +2,22 @@ package ru.practicum.shareit.request;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.request.dto.ItemRequestDtoCreate;
 import ru.practicum.shareit.request.dto.ItemRequestDtoResponse;
 import ru.practicum.shareit.request.dto.ItemRequestsDtoResponse;
 import ru.practicum.shareit.request.service.ItemRequestService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @RestController
 @RequestMapping(path = "/requests")
 @RequiredArgsConstructor
+@Validated
 @Slf4j
 public class ItemRequestController {
 
@@ -39,17 +42,11 @@ public class ItemRequestController {
     //GET /requests/all?from=0&size=0
     @GetMapping("/all")
     public List<ItemRequestsDtoResponse> findAllBySize(@RequestHeader("X-Sharer-User-Id") long userId,
-                                                       @RequestParam(value = "from", required = false, defaultValue = "0") Integer from,
-                                                       @RequestParam(value = "size", required = false, defaultValue = "20") Integer size) {
+                                                       @RequestParam(value = "from", required = false, defaultValue = "0") @PositiveOrZero Integer from,
+                                                       @RequestParam(value = "size", required = false, defaultValue = "20") @Positive Integer size) {
         log.info("Обрабатываем запрос на получение запросов на вещь, от пользователя: {}, " +
                 "отображение может быть постраничное. Индекс первого элемента, начиная с 0 = {}," +
                 " количество элементов для отображения на странице = {}", userId, from, size);
-        if (from != null && size != null) {
-            if (from < 0 || size <= 0) {
-                throw new ValidationException(String.format("Значения from не может быть отрицательным (from =%d) и " +
-                        "size равняться или быть меньше нуля (size =%d)", from, size));
-            }
-        }
         return itemRequestService.findAllBySize(userId, from, size);
     }
 

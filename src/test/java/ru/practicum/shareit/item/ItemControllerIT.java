@@ -165,6 +165,18 @@ class ItemControllerIT {
 
     @SneakyThrows
     @Test
+    void findAll_whenFromOrSizeIsIncorrect_thenThrowConstraintViolationException() {
+        mockMvc.perform(get("/items")
+                        .header("X-Sharer-User-Id", 1L)
+                        .param("size", "-1"))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+
+        verify(itemService, never()).findAll(1L, 0, -1);
+    }
+
+    @SneakyThrows
+    @Test
     void searchAllByRequestText() {
         mockMvc.perform(get("/items/search")
                         .param("text", "StAirS")
@@ -176,6 +188,22 @@ class ItemControllerIT {
                 .getContentAsString();
 
         verify(itemService).search(1L, "StAirS", 0, 20);
+    }
+
+    @SneakyThrows
+    @Test
+    void searchAllByRequestText_whenFromOrSizeIsIncorrect_thenThrowConstraintViolationException() {
+        mockMvc.perform(get("/items/search")
+                        .param("text", "StAirS")
+                        .param("from", "-1")
+                        .header("X-Sharer-User-Id", 1L))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        verify(itemService, never()).search(1L, "StAirS", -1, 20);
     }
 
     @SneakyThrows

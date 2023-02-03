@@ -55,10 +55,10 @@ public class ItemRequestMapper {
     public static List<ItemRequestsDtoResponse> toItemRequestsDtoArray(List<ItemRequestsDtoResponse> itemRequestsDtoResponse) {
 
         ItemRequestsDtoResponse[] itemsArray = itemRequestsDtoResponse.toArray(ItemRequestsDtoResponse[]::new);
-        log.info("РАЗМЕР МАССИВА: " + itemsArray.length);
+        log.info("РАЗМЕР МАССИВА: {}", itemsArray.length);
 
         List<ItemRequestsDtoResponse> list = Arrays.asList(itemsArray);
-        log.info("РАЗМЕР СПИСКА: " + list.size());
+        log.info("РАЗМЕР СПИСКА: {}", list.size());
 
         return list;
     }

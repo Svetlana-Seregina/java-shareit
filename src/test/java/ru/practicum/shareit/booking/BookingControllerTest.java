@@ -67,9 +67,9 @@ class BookingControllerTest {
     @Test
     void findAll() {
         List<BookingDtoResponse> bookingDtoResponses = List.of(bookingDtoResponse);
-        Mockito.when(bookingService.findAll(userBooker.getId(), "FUTURE", 0L, 20)).thenReturn(bookingDtoResponses);
+        Mockito.when(bookingService.findAll(userBooker.getId(), "FUTURE", 0, 20)).thenReturn(bookingDtoResponses);
 
-        List<BookingDtoResponse> result = bookingController.findAll(userBooker.getId(), "FUTURE", 0L, 20);
+        List<BookingDtoResponse> result = bookingController.findAll(userBooker.getId(), "FUTURE", 0, 20);
 
         assertEquals(bookingDtoResponses, result);
     }
@@ -77,9 +77,9 @@ class BookingControllerTest {
     @Test
     void findAllByOwner() {
         List<BookingDtoResponse> bookingDtoResponses = List.of(bookingDtoResponse);
-        Mockito.when(bookingService.findAll(userOwner.getId(), "FUTURE", 0L, 20)).thenReturn(bookingDtoResponses);
+        Mockito.when(bookingService.findAll(userOwner.getId(), "FUTURE", 0, 20)).thenReturn(bookingDtoResponses);
 
-        List<BookingDtoResponse> result = bookingController.findAll(userOwner.getId(), "FUTURE", 0L, 20);
+        List<BookingDtoResponse> result = bookingController.findAll(userOwner.getId(), "FUTURE", 0, 20);
 
         assertEquals(bookingDtoResponses, result);
     }
