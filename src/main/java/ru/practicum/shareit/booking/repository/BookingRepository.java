@@ -1,8 +1,6 @@
 package ru.practicum.shareit.booking.repository;
 
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingState;
@@ -13,7 +11,6 @@ import java.util.List;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
 
-    //List<Booking> getAllByBooker_Id(Long userId, Sort sort);
     List<Booking> getAllByBooker_Id(Long userId, Pageable pageable);
 
     List<Booking> getAllByBooker_IdAndStartIsAfter(Long userId, LocalDateTime localDateTime, Pageable pageable);
@@ -45,6 +42,5 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             List<Item> items, LocalDateTime ldt1, LocalDateTime ldt2, BookingState bs);
 
     List<Booking> getAllByItem_InAndStartAfterAndStatusIs(List<Item> items, LocalDateTime ldt, BookingState bs);
-
 
 }
