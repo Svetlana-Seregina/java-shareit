@@ -191,7 +191,8 @@ class ItemRequestServiceImplTest {
 
         verify(itemRequestRepository).findAll(sortedByCreatedDesc);
     }
-    
+
+
     @Test
     void findAllBySize_whenFindByItemRequestsOwner_thenReturnEmptyList() {
         User userRequestor = new User(0L, "Alex", "alex@yandex.ru");
