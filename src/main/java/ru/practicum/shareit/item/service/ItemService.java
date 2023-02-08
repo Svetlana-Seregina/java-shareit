@@ -12,9 +12,9 @@ public interface ItemService {
 
     ItemDtoBooking findById(long userId, long id);
 
-    List<ItemDtoBooking> findAll(long userId);
+    List<ItemDtoBooking> findAll(long userId, Integer from, Integer size);
 
-    List<ItemDtoResponse> search(long userId, String text);
+    List<ItemDtoResponse> search(long userId, String text, Integer from, Integer size);
 
     CommentDtoResponse save(long userId, long id, CommentDtoCreate commentDtoCreate);
 }

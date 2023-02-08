@@ -30,9 +30,9 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    void deleteById(@PathVariable long id) {
+    boolean deleteById(@PathVariable long id) {
         log.info("Обрабатываем запрос на удаление пользователя с id = {}", id);
-        userService.deleteById(id);
+        return userService.deleteById(id);
     }
 
     @GetMapping

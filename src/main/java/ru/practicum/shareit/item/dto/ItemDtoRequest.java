@@ -22,10 +22,4 @@ public class ItemDtoRequest {
     private final Long ownerId;
     private final Long requestId;
 
-    @Data
-    public static class Booking {
-        private final long id;
-        private final long bookerId;
-    }
-
 }

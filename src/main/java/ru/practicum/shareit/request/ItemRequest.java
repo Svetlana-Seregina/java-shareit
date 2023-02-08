@@ -1,25 +1,31 @@
 package ru.practicum.shareit.request;
 
 import lombok.*;
+import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
 import javax.validation.constraints.PastOrPresent;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "requests", schema = "public")
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class ItemRequest {
 
     @Id
-    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String description;
-    @Column(name = "requestor_id")
-    private Long requestorId;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "requestor_id")
+    private User requestor;
+
     @PastOrPresent
-    private LocalDate created;
+    private LocalDateTime created;
+
 
 }

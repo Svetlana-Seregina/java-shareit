@@ -45,10 +45,11 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public void deleteById(long userId) {
+    public boolean deleteById(long userId) {
         log.info("Удаление пользователя.");
         userRepository.deleteById(userId);
         log.info("Пользователь с id = {} удален.", userId);
+        return userRepository.existsById(userId);
     }
 
     @Override

@@ -2,6 +2,7 @@ package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.model.Booking;
@@ -16,7 +17,6 @@ import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
-import ru.practicum.shareit.user.service.UserService;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -34,15 +34,15 @@ public class ItemServiceImpl implements ItemService {
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
     private final BookingRepository bookingRepository;
-    private final UserService userService;
 
     @Transactional
     @Override
     public ItemDtoResponse save(long userId, ItemDtoRequest itemDtoRequest) {
-        userService.findById(userId);
+        userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Пользователя с id = %d нет в базе.", userId)));
         log.info("Создание вещи.");
         Item item = itemRepository.save(ItemMapper.toItem(userId, itemDtoRequest));
-        return ItemMapper.toItemDtoRequest(item);
+        return ItemMapper.toItemDtoResponse(item);
     }
 
     @Transactional
@@ -65,7 +65,7 @@ public class ItemServiceImpl implements ItemService {
         item.setAvailable(itemDtoRequest.getAvailable() != null ? itemDtoRequest.getAvailable() : item.getAvailable());
         log.info("Вещь обновлена: {}", item);
 
-        return ItemMapper.toItemDtoRequest(item);
+        return ItemMapper.toItemDtoResponse(item);
     }
 
     @Override
@@ -119,11 +119,16 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDtoBooking> findAll(long userId) {
+    public List<ItemDtoBooking> findAll(long userId, Integer from, Integer size) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Пользователя с id = %d нет в базе.", userId)));
         log.info("ПОЛЬЗОВАТЕЛЬ = {}", user.getName());
-        List<Item> items = itemRepository.findAllByOwnerId(userId);
+        Pageable sortedByIdDesc =
+                PageRequest.of(0, size, Sort.by("id").descending());
+
+        List<Item> items = itemRepository.findAllByOwnerId(userId, sortedByIdDesc)
+                .stream()
+                .collect(toList());
         log.info("ВЕЩИ ПОЛЬЗОВАТЕЛЯ = {}", items.size());
 
         Map<Long, List<Booking>> lastBookingsByItemId =
@@ -182,12 +187,16 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDtoResponse> search(long userId, String text) {
+    public List<ItemDtoResponse> search(long userId, String text, Integer from, Integer size) {
         log.info("Поиск вещи по запросу пользователя: {}", text);
-        List<Item> itemList = itemRepository.search(text);
+        Pageable sortedByIdtDesc =
+                PageRequest.of(0, size, Sort.by("id").ascending());
+        List<Item> itemList = itemRepository.search(text, sortedByIdtDesc)
+                .stream()
+                .collect(toList());
         log.info("Количество вещей, найденных по запросу пользователя = {}", itemList.size());
         return itemList.stream()
-                .map(ItemMapper::toItemDtoRequest)
+                .map(ItemMapper::toItemDtoResponse)
                 .collect(toList());
     }
 

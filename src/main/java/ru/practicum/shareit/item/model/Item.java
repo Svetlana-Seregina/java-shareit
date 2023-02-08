@@ -8,6 +8,9 @@ import javax.persistence.*;
 @Table(name = "items", schema = "public")
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class Item {
 
     @Id
@@ -22,6 +25,5 @@ public class Item {
     private Long ownerId;
     @Column(name = "request_id")
     private Long requestId;
-
 
 }

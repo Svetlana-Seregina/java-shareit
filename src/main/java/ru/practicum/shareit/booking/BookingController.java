@@ -2,17 +2,21 @@ package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDtoRequest;
 import ru.practicum.shareit.booking.dto.BookingDtoResponse;
 import ru.practicum.shareit.booking.service.BookingService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @RestController
 @RequestMapping("/bookings")
 @RequiredArgsConstructor
+@Validated
 @Slf4j
 public class BookingController {
 
@@ -45,18 +49,22 @@ public class BookingController {
     // GET /bookings?state={state}
     @GetMapping
     public List<BookingDtoResponse> findAll(@RequestHeader("X-Sharer-User-Id") long userId,
-                                            @RequestParam(value = "state", defaultValue = "ALL") String state) {
-        log.warn("Обрабатываем запрос на получение списка всех бронирований пользователя: {}, статус бронирования: {}", userId, state);
-        return bookingService.findAll(userId, state);
+                                            @RequestParam(value = "state", defaultValue = "ALL") String state,
+                                            @RequestParam(value = "from", required = false, defaultValue = "0") @PositiveOrZero Integer from,
+                                            @RequestParam(value = "size", required = false, defaultValue = "20") @Positive Integer size) {
+        log.warn("Обрабатываем запрос на получение списка всех бронирований пользователя: {}, статус бронирования: {}, " +
+                "значение from = {}, size = {}", userId, state, from, size);
+        return bookingService.findAll(userId, state, from, size);
     }
 
     // GET /bookings/owner?state={state}
     @GetMapping("/owner")
     public List<BookingDtoResponse> findAllByOwner(@RequestHeader("X-Sharer-User-Id") long userId,
-                                                   @RequestParam(value = "state", defaultValue = "ALL") String state) {
+                                                   @RequestParam(value = "state", defaultValue = "ALL") String state,
+                                                   @RequestParam(value = "from", required = false, defaultValue = "0") @PositiveOrZero Integer from,
+                                                   @RequestParam(value = "size", required = false, defaultValue = "20") @Positive Integer size) {
         log.warn("Обрабатываем запрос на получение списка всех бронирований пользователя: {}, статус бронирования: {}", userId, state);
-        return bookingService.findAllByOwner(userId, state);
-
+        return bookingService.findAllByOwner(userId, state, from, size);
     }
 
 }
