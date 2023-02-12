@@ -18,6 +18,6 @@ public class ErrorHandler {
     public Map<String, String> handlerIllegalArgumentException(IllegalArgumentException e,
                                                                HttpServletRequest request) {
         log.warn("Ошибка валидации запроса: {} \nПуть запроса: {}", e.getMessage(), request.getServletPath());
-        return Map.of("error" , e.getMessage());
+        return Map.of("error", e.getMessage());
     }
 }
