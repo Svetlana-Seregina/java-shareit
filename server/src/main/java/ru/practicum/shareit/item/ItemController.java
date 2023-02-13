@@ -43,8 +43,8 @@ public class ItemController {
 
     @GetMapping
     public List<ItemDtoBooking> findAll(@RequestHeader("X-Sharer-User-Id") long userId,
-                                        @RequestParam(value = "from", required = false, defaultValue = "0") Integer from,
-                                        @RequestParam(value = "size", required = false, defaultValue = "20") Integer size) {
+                                        @RequestParam(value = "from", defaultValue = "0") Integer from,
+                                        @RequestParam(value = "size", defaultValue = "20") Integer size) {
         log.info("Обрабатываем запрос на получение всех вещей от пользователя с id: {}", userId);
         return itemService.findAll(userId, from, size);
     }
@@ -53,8 +53,8 @@ public class ItemController {
     @GetMapping("/search")
     public List<ItemDtoResponse> searchAllByRequestText(@RequestHeader("X-Sharer-User-Id") long userId,
                                                         @RequestParam(value = "text") String text,
-                                                        @RequestParam(value = "from", required = false, defaultValue = "0") Integer from,
-                                                        @RequestParam(value = "size", required = false, defaultValue = "20") Integer size) {
+                                                        @RequestParam(value = "from", defaultValue = "0") Integer from,
+                                                        @RequestParam(value = "size", defaultValue = "20") Integer size) {
         if (text.isBlank()) {
             return Collections.emptyList();
         }

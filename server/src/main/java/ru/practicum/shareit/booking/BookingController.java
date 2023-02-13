@@ -30,7 +30,7 @@ public class BookingController {
     @PatchMapping("{id}")
     public BookingDtoResponse update(@RequestHeader("X-Sharer-User-Id") long userId,
                                      @PathVariable long id,
-                                     @RequestParam(value = "approved", required = false) Boolean approved) {
+                                     @RequestParam(value = "approved") Boolean approved) {
         log.warn("Обрабатываем запрос на обновление статуса аренды = {} вещи от владельца с id: {}, id аренды: {}",
                 approved, userId, id);
         return bookingService.update(userId, id, approved);
@@ -47,8 +47,8 @@ public class BookingController {
     @GetMapping
     public List<BookingDtoResponse> findAll(@RequestHeader("X-Sharer-User-Id") long userId,
                                             @RequestParam(value = "state", defaultValue = "ALL") String state,
-                                            @RequestParam(value = "from", required = false, defaultValue = "0") Integer from,
-                                            @RequestParam(value = "size", required = false, defaultValue = "20") Integer size) {
+                                            @RequestParam(value = "from", defaultValue = "0") Integer from,
+                                            @RequestParam(value = "size", defaultValue = "20") Integer size) {
         log.warn("Обрабатываем запрос на получение списка всех бронирований пользователя: {}, статус бронирования: {}, " +
                 "значение from = {}, size = {}", userId, state, from, size);
         return bookingService.findAll(userId, state, from, size);
@@ -58,8 +58,8 @@ public class BookingController {
     @GetMapping("/owner")
     public List<BookingDtoResponse> findAllByOwner(@RequestHeader("X-Sharer-User-Id") long userId,
                                                    @RequestParam(value = "state", defaultValue = "ALL") String state,
-                                                   @RequestParam(value = "from", required = false, defaultValue = "0") Integer from,
-                                                   @RequestParam(value = "size", required = false, defaultValue = "20") Integer size) {
+                                                   @RequestParam(value = "from", defaultValue = "0") Integer from,
+                                                   @RequestParam(value = "size", defaultValue = "20") Integer size) {
         log.warn("Обрабатываем запрос на получение списка всех бронирований пользователя: {}, статус бронирования: {}", userId, state);
         return bookingService.findAllByOwner(userId, state, from, size);
     }

@@ -6,8 +6,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import javax.validation.constraints.Future;
-import javax.validation.constraints.FutureOrPresent;
 import java.time.LocalDateTime;
 
 import ru.practicum.shareit.item.model.Item;
@@ -25,11 +23,9 @@ public class Booking {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @FutureOrPresent
     @Column(name = "start_date")
     private LocalDateTime start;
 
-    @Future
     @Column(name = "end_date")
     private LocalDateTime end;
 

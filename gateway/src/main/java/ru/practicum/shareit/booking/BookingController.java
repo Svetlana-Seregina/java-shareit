@@ -42,7 +42,7 @@ public class BookingController {
     @PatchMapping("{id}")
     public ResponseEntity<Object> update(@RequestHeader("X-Sharer-User-Id") long userId,
                                          @PathVariable long id,
-                                         @RequestParam(value = "approved", required = false) Boolean approved) {
+                                         @RequestParam(value = "approved") Boolean approved) {
         log.warn("Update booking state = {} itemOwnerId: {}, bookingId: {}",
                 approved, userId, id);
         return bookingClient.update(userId, id, approved);
@@ -51,11 +51,10 @@ public class BookingController {
     // findAll
     @GetMapping
     public ResponseEntity<Object> findAll(@RequestHeader("X-Sharer-User-Id") long userId,
-                                              @RequestParam(name = "state", defaultValue = "ALL") String stateParam,
-                                              @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
-                                              @Positive @RequestParam(name = "size", defaultValue = "20") Integer size) {
-        BookingState state = BookingState.from(stateParam)
-                .orElseThrow(() -> new IllegalArgumentException("Unknown state: " + stateParam));
+                                          @RequestParam(name = "state", defaultValue = "ALL") String stateParam,
+                                          @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
+                                          @Positive @RequestParam(name = "size", defaultValue = "20") Integer size) {
+        BookingState state = bookingStateValidation(stateParam);
         log.info("Get booking with state={}, userId={}, from={}, size={}", stateParam, userId, from, size);
         return bookingClient.findAll(userId, state, from, size);
     }
@@ -64,11 +63,15 @@ public class BookingController {
     @GetMapping("/owner")
     public ResponseEntity<Object> findAllByOwner(@RequestHeader("X-Sharer-User-Id") long userId,
                                                  @RequestParam(value = "state", defaultValue = "ALL") String stateParam,
-                                                 @PositiveOrZero @RequestParam(value = "from", required = false, defaultValue = "0") Integer from,
-                                                 @Positive @RequestParam(value = "size", required = false, defaultValue = "20") Integer size) {
-        BookingState state = BookingState.from(stateParam)
-                .orElseThrow(() -> new IllegalArgumentException("Unknown state: " + stateParam));
+                                                 @PositiveOrZero @RequestParam(value = "from", defaultValue = "0") Integer from,
+                                                 @Positive @RequestParam(value = "size", defaultValue = "20") Integer size) {
+        BookingState state = bookingStateValidation(stateParam);
         log.warn("Get booking with state {}, userId={}, from={}, size={}", stateParam, userId, from, size);
         return bookingClient.findAllByOwner(userId, state, from, size);
+    }
+
+    private BookingState bookingStateValidation(String stateParam) {
+        return BookingState.from(stateParam)
+                .orElseThrow(() -> new IllegalArgumentException("Unknown state: " + stateParam));
     }
 }

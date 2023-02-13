@@ -7,7 +7,6 @@ import lombok.Setter;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
-import javax.validation.constraints.PastOrPresent;
 import java.time.LocalDateTime;
 
 @Entity
@@ -27,8 +26,6 @@ public class ItemRequest {
     @JoinColumn(name = "requestor_id")
     private User requestor;
 
-    @PastOrPresent
     private LocalDateTime created;
-
 
 }
