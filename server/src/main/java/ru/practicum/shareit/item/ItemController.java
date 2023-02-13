@@ -55,9 +55,6 @@ public class ItemController {
                                                         @RequestParam(value = "text") String text,
                                                         @RequestParam(value = "from", defaultValue = "0") Integer from,
                                                         @RequestParam(value = "size", defaultValue = "20") Integer size) {
-        if (text.isBlank()) {
-            return Collections.emptyList();
-        }
         log.info("Обрабатываем запрос на поиск вещи по запросу пользователя. Текст запроса: {}", text);
         return itemService.search(userId, text, from, size);
     }
