@@ -59,7 +59,7 @@ public class ItemController {
                                                          @RequestParam(value = "from", defaultValue = "0") @PositiveOrZero Integer from,
                                                          @RequestParam(value = "size", defaultValue = "20") @Positive Integer size) {
         log.info("Обрабатываем запрос на поиск вещи по запросу пользователя. Текст запроса: {}", text);
-        if(text.isBlank()) {
+        if (text.isBlank()) {
             return new ResponseEntity<>(Collections.emptyList(), HttpStatus.OK);
         }
         return itemClient.searchAllByRequestText(userId, text, from, size);
